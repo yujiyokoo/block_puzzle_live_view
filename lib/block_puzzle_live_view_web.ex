@@ -24,6 +24,8 @@ defmodule BlockPuzzleLiveViewWeb do
       import Plug.Conn
       import BlockPuzzleLiveViewWeb.Gettext
       alias BlockPuzzleLiveViewWeb.Router.Helpers, as: Routes
+
+      import Phoenix.LiveView.Controller
     end
   end
 
@@ -42,6 +44,11 @@ defmodule BlockPuzzleLiveViewWeb do
       import BlockPuzzleLiveViewWeb.ErrorHelpers
       import BlockPuzzleLiveViewWeb.Gettext
       alias BlockPuzzleLiveViewWeb.Router.Helpers, as: Routes
+
+      import Phoenix.LiveView,
+        only: [live_render: 2, live_render: 3, live_link: 1, live_link: 2]
+
+      # , live_component: 2, live_component: 3, live_component: 4]
     end
   end
 
@@ -50,6 +57,7 @@ defmodule BlockPuzzleLiveViewWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import Phoenix.LiveView.Router
     end
   end
 

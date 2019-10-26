@@ -15,7 +15,10 @@ config :block_puzzle_live_view, BlockPuzzleLiveViewWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "4AAOQ+evn//xx3GNUY/uW4AfpRWymMuioZ/3QYzBy1STrKXKz+aU1AwafJjDhQw7",
   render_errors: [view: BlockPuzzleLiveViewWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: BlockPuzzleLiveView.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: BlockPuzzleLiveView.PubSub, adapter: Phoenix.PubSub.PG2],
+  live_view: [
+     signing_salt: "i3cB6LScWTyTGrliuU4YKKJwyOAK6Awj"
+   ]
 
 # Configures Elixir's Logger
 config :logger, :console,
