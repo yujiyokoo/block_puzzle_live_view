@@ -19,7 +19,7 @@ defmodule BlockPuzzleLiveViewWeb.Router do
 
     get "/", PageController, :index
 
-    live "/game", GameLive, session: [:user_id]
+    live "/game", Live.GameLive, session: [:user_id]
   end
 
   # Other scopes may use custom stacks.

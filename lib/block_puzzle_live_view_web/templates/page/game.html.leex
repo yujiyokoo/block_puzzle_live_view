@@ -1,3 +1,4 @@
 <div phx-keydown="key_down" phx-keyup="key_up" phx-target="window">
-  GameLeft: <%= @left %>, GameRight: <%= @right %>
+  Left pressed: <%= @input_state.left.pressed %>, count: <%= @input_state.left.count %><br/>
+  Right pressed: <%= @input_state.right.pressed %>, count: <%= @input_state.right.count %><br/>
 </>
