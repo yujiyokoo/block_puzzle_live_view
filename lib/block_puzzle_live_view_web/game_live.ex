@@ -8,11 +8,11 @@ defmodule BlockPuzzleLiveViewWeb.GameLive do
 
   def mount(%{user_id: user_id}, socket) do
     if connected?(socket), do: :timer.send_interval(16, self(), :update)
-    {:ok, assign(socket, :left, false) |> assign(:right, false)}
+    {:ok, assign(socket, left: false, right: false)}
   end
 
   def handle_info(:update, socket) do
-    {:noreply, assign(socket, :left, socket.assigns.left) |> assign(:right, socket.assigns.right)}
+    {:noreply, assign(socket, left: socket.assigns.left, right: socket.assigns.right)}
   end
 
   def handle_event("key_down", keys, socket) do
@@ -30,7 +30,7 @@ defmodule BlockPuzzleLiveViewWeb.GameLive do
         socket.assigns.left
       end
 
-    {:noreply, assign(socket, :left, left) |> assign(:right, right)}
+    {:noreply, assign(socket, left: left, right: right)}
   end
 
   def handle_event("key_up", keys, socket) do
@@ -48,6 +48,6 @@ defmodule BlockPuzzleLiveViewWeb.GameLive do
         socket.assigns.left
       end
 
-    {:noreply, assign(socket, :left, left) |> assign(:right, right)}
+    {:noreply, assign(socket, left: left, right: right)}
   end
 end
