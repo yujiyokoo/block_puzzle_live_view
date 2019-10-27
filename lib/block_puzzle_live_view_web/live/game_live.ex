@@ -11,7 +11,12 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     if connected?(socket), do: :timer.send_interval(16, self(), :update)
 
     input_state = %InputState{}
-    game_state = GameStates.start_game()
+
+    game_state = %GameState{
+      board_state: BoardState.new_board(),
+      block_state: BlockStates.null_block(),
+      running: false
+    }
 
     {:ok,
      assign(socket,
@@ -74,6 +79,14 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   end
 
   def handle_info(:update, socket) do
+    if socket.assigns.game_state.running do
+      do_update(socket)
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def do_update(socket) do
     {right, left, down, up, z, x} = get_input(socket)
 
     input_state =
@@ -129,6 +142,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       |> GameStates.lock_block()
       |> GameStates.delete_full_rows()
       |> get_new_block()
+      |> GameStates.check_game_over()
     else
       game_state
     end
@@ -296,7 +310,14 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
         x: x
       })
 
-    {:noreply, assign(socket, input_state: input_state)}
+    game_state =
+      if keys["key"] == " " && !socket.assigns.game_state.running do
+        GameStates.start_game()
+      else
+        socket.assigns.game_state
+      end
+
+    {:noreply, assign(socket, input_state: input_state, game_state: game_state)}
   end
 
   defp set_pressed(%{count: count}), do: %{pressed: true, count: count}

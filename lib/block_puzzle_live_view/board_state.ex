@@ -10,6 +10,7 @@ defmodule BlockPuzzleLiveView.BoardState do
   end
 
   def solid_floor, do: @solid_floor
+  def empty_row, do: @empty_row
 
   def refill(rows) do
     List.duplicate(@empty_row, 20 - Enum.count(rows)) ++ rows

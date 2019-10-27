@@ -2,7 +2,11 @@ defmodule BlockPuzzleLiveView.GameStates do
   alias BlockPuzzleLiveView.{GameState, BlockStates, BoardState}
 
   def start_game do
-    %GameState{board_state: BoardState.new_board(), block_state: BlockStates.random_block()}
+    %GameState{
+      board_state: BoardState.new_board(),
+      block_state: BlockStates.random_block(),
+      running: true
+    }
   end
 
   def lock_block(game_state = %GameState{}) do
@@ -21,12 +25,52 @@ defmodule BlockPuzzleLiveView.GameStates do
     Map.put(game_state, :board_state, BoardState.refill(without_full))
   end
 
+  def check_game_over(game_state = %GameState{}) do
+    board_state_with_floor_and_walls =
+      (game_state.board_state ++ [BoardState.solid_floor()])
+      |> Enum.map(fn row -> [:blok] ++ row ++ [:block] end)
+
+    extended_board = [:blok] ++ BoardState.empty_row() ++ [:block]
+
+    rows =
+      Enum.slice(
+        board_state_with_floor_and_walls,
+        (game_state.block_state.y + 1)..(game_state.block_state.y + 1 + 3)
+      )
+      |> IO.inspect()
+
+    # + 1 as left wall has been added
+    board_4x4 =
+      Enum.map(rows, fn row ->
+        Enum.slice(row, (game_state.block_state.x + 1)..(game_state.block_state.x + 3 + 1))
+      end)
+      |> IO.inspect()
+
+    # TODO: decide whether to use nil or zero...
+    block_4x4 =
+      BlockStates.as_4x4(game_state.block_state)
+      |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
+      |> IO.inspect()
+
+    game_over =
+      Enum.zip(List.flatten(block_4x4), List.flatten(board_4x4))
+      |> Enum.any?(fn {l, r} -> !is_nil(l) && !is_nil(r) end)
+      |> IO.inspect()
+
+    IO.puts("==================")
+
+    if game_over do
+      Map.put(game_state, :running, false)
+    else
+      game_state
+    end
+  end
+
   def can_rotate_counterclockwise?(game_state = %GameState{}) do
     board_state_with_floor_and_walls =
       (game_state.board_state ++ [BoardState.solid_floor()])
       |> Enum.map(fn row -> [:blok] ++ row ++ [:block] end)
 
-    # + 1 as this is collision check for moving down
     rows =
       Enum.slice(
         board_state_with_floor_and_walls,
@@ -53,7 +97,6 @@ defmodule BlockPuzzleLiveView.GameStates do
       (game_state.board_state ++ [BoardState.solid_floor()])
       |> Enum.map(fn row -> [:blok] ++ row ++ [:block] end)
 
-    # + 1 as this is collision check for moving down
     rows =
       Enum.slice(
         board_state_with_floor_and_walls,

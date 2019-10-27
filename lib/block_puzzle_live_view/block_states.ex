@@ -14,7 +14,9 @@ defmodule BlockPuzzleLiveView.BlockStates do
   end
 
   def colour(shape) do
-    %{I: :cyan, O: :yellow, L: :orange, J: :blue, S: :green, Z: :red, T: :purple}[shape]
+    %{I: :cyan, O: :yellow, L: :orange, J: :blue, S: :green, Z: :red, T: :purple, NULL: :none}[
+      shape
+    ]
   end
 
   def random_block do
@@ -22,6 +24,15 @@ defmodule BlockPuzzleLiveView.BlockStates do
       x: 3,
       y: -1,
       shape: Enum.at(all_shapes, Enum.random(0..6)),
+      orientation: 0
+    }
+  end
+
+  def null_block do
+    %BlockState{
+      x: 3,
+      y: -1,
+      shape: :NULL,
       orientation: 0
     }
   end
@@ -213,7 +224,8 @@ defmodule BlockPuzzleLiveView.BlockStates do
           [1, 0, 0, 0],
           [0, 0, 0, 0]
         ]
-      ]
+      ],
+      NULL: List.duplicate([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], 4)
     }
   end
 end
