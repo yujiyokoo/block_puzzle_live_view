@@ -37,27 +37,21 @@ defmodule BlockPuzzleLiveView.GameStates do
         board_state_with_floor_and_walls,
         (game_state.block_state.y + 1)..(game_state.block_state.y + 1 + 3)
       )
-      |> IO.inspect()
 
     # + 1 as left wall has been added
     board_4x4 =
       Enum.map(rows, fn row ->
         Enum.slice(row, (game_state.block_state.x + 1)..(game_state.block_state.x + 3 + 1))
       end)
-      |> IO.inspect()
 
     # TODO: decide whether to use nil or zero...
     block_4x4 =
       BlockStates.as_4x4(game_state.block_state)
       |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
-      |> IO.inspect()
 
     game_over =
       Enum.zip(List.flatten(block_4x4), List.flatten(board_4x4))
       |> Enum.any?(fn {l, r} -> !is_nil(l) && !is_nil(r) end)
-      |> IO.inspect()
-
-    IO.puts("==================")
 
     if game_over do
       Map.put(game_state, :running, false)
