@@ -1,5 +1,6 @@
 defmodule BlockPuzzleLiveView.BoardState do
   @empty_row [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+  @solid_floor [:block, :block, :block, :block, :block, :block, :block, :block, :block, :block]
   @empty_board List.duplicate(@empty_row, 20)
 
   alias BlockPuzzleLiveView.{BlockState, BlockStates}
@@ -7,6 +8,8 @@ defmodule BlockPuzzleLiveView.BoardState do
   def new_board do
     @empty_board
   end
+
+  def solid_floor, do: @solid_floor
 
   def place_block(board, block_state = %BlockState{}) do
     start_row = if block_state.y < 0, do: 0, else: block_state.y

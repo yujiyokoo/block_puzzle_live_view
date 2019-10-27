@@ -51,7 +51,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
 
     dropped_block_state =
       new_block_state
-      |> move_down(socket.assigns.game_state.frame)
+      |> move_down(socket.assigns.game_state)
 
     updated_game_state =
       socket.assigns.game_state
@@ -66,8 +66,8 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
      )}
   end
 
-  defp move_down(blk_st = %{}, frame) do
-    if rem(frame, 3) == 0 do
+  defp move_down(blk_st = %{}, game_state) do
+    if rem(game_state.frame, 3) == 0 && GameStates.can_drop?(game_state) do
       Map.put(blk_st, :y, blk_st.y + 1)
     else
       blk_st
