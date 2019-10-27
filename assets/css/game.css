@@ -1,0 +1,23 @@
+.gameboard {
+  border-collapse: collapse;
+  margin: 0;
+  padding: 0;
+  border: solid 3px black;
+  width: 10em;
+  height: 20em;
+}
+
+.gameboard td {
+  padding: 0;
+  border: 1px solid grey;
+  width: 10%;
+  height: 5%;
+}
+
+.red { background-color: red; }
+.yellow { background-color: yellow; }
+.green { background-color: green; }
+.cyan { background-color: cyan; }
+.purple { background-color: purple; }
+.blue { background-color: blue; }
+.orange { background-color: orange; }

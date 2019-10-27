@@ -1,6 +1,7 @@
 defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   use Phoenix.LiveView
   require Phoenix.View
+  alias BlockPuzzleLiveView.{BoardState, GameStates, GameState}
 
   def render(assigns) do
     Phoenix.View.render(BlockPuzzleLiveViewWeb.PageView, "game.html", assigns)
@@ -10,8 +11,21 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     if connected?(socket), do: :timer.send_interval(16, self(), :update)
 
     input_state = %InputState{}
+    game_state = GameStates.start_game()
 
-    {:ok, assign(socket, input_state: input_state)}
+    {:ok,
+     assign(socket,
+       input_state: input_state,
+       game_state: game_state,
+       cell_colours: cell_colours(game_state)
+     )}
+  end
+
+  defp cell_colours(game_state = %GameState{}) do
+    IO.inspect(game_state.block_state.shape, label: "shape")
+    with_block = BoardState.place_block(game_state.board_state, game_state.block_state)
+
+    BoardState.cell_colours(with_block)
   end
 
   def handle_info(:update, socket) do

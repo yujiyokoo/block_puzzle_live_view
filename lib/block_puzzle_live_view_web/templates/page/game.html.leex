@@ -2,3 +2,15 @@
   Left pressed: <%= @input_state.left.pressed %>, count: <%= @input_state.left.count %><br/>
   Right pressed: <%= @input_state.right.pressed %>, count: <%= @input_state.right.count %><br/>
 </>
+
+<table class="gameboard">
+  <tbody>
+    <%= for row <- @cell_colours do %>
+    <tr>
+      <%= for cell <- row do %>
+        <td class="<%= cell %>"></td>
+      <% end %>
+    </tr>
+    <% end %>
+  </tbody>
+</table>

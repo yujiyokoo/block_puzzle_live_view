@@ -61,7 +61,8 @@ config :block_puzzle_live_view, BlockPuzzleLiveViewWeb.Endpoint,
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/block_puzzle_live_view_web/{live,views}/.*(ex)$",
-      ~r"lib/block_puzzle_live_view_web/templates/.*(eex)$"
+      ~r"lib/block_puzzle_live_view_web/templates/.*(eex)$",
+      ~r"lib/block_puzzle_live_view/.*(ex)$",
     ]
   ]
 
