@@ -21,7 +21,7 @@ defmodule BlockPuzzleLiveView.BoardState do
 
       if Enum.member?(block_row_nums, row_idx) do
         block_row =
-          BlockStates.as_4x4(block_state.shape, block_state.orientation)
+          BlockStates.as_4x4(block_state)
           |> Enum.at(row_idx - block_state.y)
 
         cols_to_update = Enum.to_list(block_state.x..(block_state.x + 3))

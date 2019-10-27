@@ -27,7 +27,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     BoardState.cell_colours(with_block)
   end
 
-  def handle_info(:update, socket) do
+  defp get_input(socket) do
     right =
       if socket.assigns.input_state.right.pressed do
         socket.assigns.input_state.right |> increase_count
@@ -42,12 +42,56 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
         socket.assigns.input_state.left
       end
 
-    input_state = Map.merge(socket.assigns.input_state, %{left: left, right: right})
+    down =
+      if socket.assigns.input_state.down.pressed do
+        socket.assigns.input_state.down |> increase_count
+      else
+        socket.assigns.input_state.down
+      end
+
+    up =
+      if socket.assigns.input_state.up.pressed do
+        socket.assigns.input_state.up |> increase_count
+      else
+        socket.assigns.input_state.up
+      end
+
+    x =
+      if socket.assigns.input_state.x.pressed do
+        socket.assigns.input_state.x |> increase_count
+      else
+        socket.assigns.input_state.x
+      end
+
+    z =
+      if socket.assigns.input_state.z.pressed do
+        socket.assigns.input_state.z |> increase_count
+      else
+        socket.assigns.input_state.z
+      end
+
+    {right, left, down, up, z, x}
+  end
+
+  def handle_info(:update, socket) do
+    {right, left, down, up, z, x} = get_input(socket)
+
+    input_state =
+      Map.merge(socket.assigns.input_state, %{
+        left: left,
+        right: right,
+        up: up,
+        down: down,
+        z: z,
+        x: x
+      })
 
     new_block_state =
       socket.assigns.game_state.block_state
       |> move_left(socket.assigns.game_state, left)
       |> move_right(socket.assigns.game_state, right)
+      |> rotate_clockwise(socket.assigns.game_state, z)
+      |> rotate_counterclockwise(socket.assigns.game_state, x)
 
     dropped_block_state =
       new_block_state
@@ -101,6 +145,26 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     end
   end
 
+  defp rotate_clockwise(blk_st = %{}, game_state, z) do
+    input = z.count == 1
+
+    if input && GameStates.can_rotate_clockwise?(game_state) do
+      Map.put(blk_st, :orientation, rem(blk_st.orientation + 1, 4))
+    else
+      blk_st
+    end
+  end
+
+  defp rotate_counterclockwise(blk_st = %{}, game_state, x) do
+    input = x.count == 1
+
+    if input && GameStates.can_rotate_counterclockwise?(game_state) do
+      Map.put(blk_st, :orientation, rem(blk_st.orientation + 3, 4))
+    else
+      blk_st
+    end
+  end
+
   defp move_right(blk_st = %{}, game_state, right) do
     right_input = right.count == 1 || (right.count >= 5 && rem(right.count, 6) == 0)
 
@@ -136,7 +200,43 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
         socket.assigns.input_state.left
       end
 
-    input_state = Map.merge(socket.assigns.input_state, %{left: left, right: right})
+    up =
+      if keys["key"] == "ArrowUp" do
+        Map.merge(socket.assigns.input_state, socket.assigns.input_state.up |> set_pressed)
+      else
+        socket.assigns.input_state.up
+      end
+
+    down =
+      if keys["key"] == "ArrowDown" do
+        Map.merge(socket.assigns.input_state, socket.assigns.input_state.down |> set_pressed)
+      else
+        socket.assigns.input_state.down
+      end
+
+    z =
+      if keys["key"] == "z" || keys["key"] == "Z" do
+        Map.merge(socket.assigns.input_state, socket.assigns.input_state.z |> set_pressed)
+      else
+        socket.assigns.input_state.z
+      end
+
+    x =
+      if keys["key"] == "x" || keys["key"] == "X" do
+        Map.merge(socket.assigns.input_state, socket.assigns.input_state.x |> set_pressed)
+      else
+        socket.assigns.input_state.x
+      end
+
+    input_state =
+      Map.merge(socket.assigns.input_state, %{
+        left: left,
+        right: right,
+        up: up,
+        down: down,
+        x: x,
+        z: z
+      })
 
     {:noreply, assign(socket, input_state: input_state)}
   end
@@ -156,7 +256,43 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
         socket.assigns.input_state.left
       end
 
-    input_state = Map.merge(socket.assigns.input_state, %{left: left, right: right})
+    up =
+      if keys["key"] == "ArrowUp" do
+        Map.merge(socket.assigns.input_state, socket.assigns.input_state.up |> set_released)
+      else
+        socket.assigns.input_state.up
+      end
+
+    down =
+      if keys["key"] == "ArrowDown" do
+        Map.merge(socket.assigns.input_state, socket.assigns.input_state.down |> set_released)
+      else
+        socket.assigns.input_state.down
+      end
+
+    z =
+      if keys["key"] == "z" || keys["key"] == "Z" do
+        Map.merge(socket.assigns.input_state, socket.assigns.input_state.z |> set_released)
+      else
+        socket.assigns.input_state.z
+      end
+
+    x =
+      if keys["key"] == "x" || keys["key"] == "X" do
+        Map.merge(socket.assigns.input_state, socket.assigns.input_state.x |> set_released)
+      else
+        socket.assigns.input_state.x
+      end
+
+    input_state =
+      Map.merge(socket.assigns.input_state, %{
+        left: left,
+        right: right,
+        up: up,
+        down: down,
+        z: z,
+        x: x
+      })
 
     {:noreply, assign(socket, input_state: input_state)}
   end

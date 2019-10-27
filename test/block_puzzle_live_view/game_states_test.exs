@@ -70,6 +70,20 @@ defmodule BlockPuzzleLiveView.GameStatesTest do
     refute GameStates.can_move_left?(state)
   end
 
+  test "can_rotate_clockwise? is true if nothing blocking at game start" do
+    state = GameStates.start_game()
+
+    assert GameStates.can_rotate_clockwise?(state)
+  end
+
+  test "can_rotate_clockwise? is false at the edge of the screen" do
+    state =
+      GameStates.start_game()
+      |> Map.put(:block_state, %BlockState{shape: :I, orientation: 1, x: -1, y: 0})
+
+    refute GameStates.can_rotate_clockwise?(state)
+  end
+
   test "lock_block locks the block in its place" do
     state =
       GameStates.start_game()

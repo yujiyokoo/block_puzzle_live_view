@@ -1,8 +1,16 @@
 defmodule BlockPuzzleLiveView.BlockStates do
   alias BlockPuzzleLiveView.BlockState
 
-  def as_4x4(shape, orientation) do
-    Enum.at(all_4x4s[shape], orientation)
+  def as_4x4(block_state) do
+    Enum.at(all_4x4s[block_state.shape], block_state.orientation)
+  end
+
+  def clockwise_next(block_state) do
+    Map.put(block_state, :orientation, rem(block_state.orientation + 1, 4))
+  end
+
+  def counterclockwise_next(block_state) do
+    Map.put(block_state, :orientation, rem(block_state.orientation + 3, 4))
   end
 
   def colour(shape) do

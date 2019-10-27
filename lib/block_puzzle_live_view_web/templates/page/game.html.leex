@@ -1,8 +1,3 @@
-<div phx-keydown="key_down" phx-keyup="key_up" phx-target="window">
-  Left pressed: <%= @input_state.left.pressed %>, count: <%= @input_state.left.count %><br/>
-  Right pressed: <%= @input_state.right.pressed %>, count: <%= @input_state.right.count %><br/>
-</>
-
 <table class="gameboard">
   <tbody>
     <%= for row <- @cell_colours do %>
@@ -14,3 +9,13 @@
     <% end %>
   </tbody>
 </table>
+
+<div phx-keydown="key_down" phx-keyup="key_up" phx-target="window">
+  Left pressed: <%= @input_state.left.pressed %>, count: <%= @input_state.left.count %><br/>
+  Right pressed: <%= @input_state.right.pressed %>, count: <%= @input_state.right.count %><br/>
+  Down pressed: <%= @input_state.down.pressed %>, count: <%= @input_state.down.count %><br/>
+  Up pressed: <%= @input_state.up.pressed %>, count: <%= @input_state.up.count %><br/>
+  X pressed: <%= @input_state.x.pressed %>, count: <%= @input_state.x.count %><br/>
+  Z pressed: <%= @input_state.z.pressed %>, count: <%= @input_state.z.count %><br/>
+</>
+
