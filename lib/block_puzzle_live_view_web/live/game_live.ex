@@ -22,7 +22,6 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   end
 
   defp cell_colours(game_state = %GameState{}) do
-    IO.inspect(game_state.block_state.shape, label: "shape")
     with_block = BoardState.place_block(game_state.board_state, game_state.block_state)
 
     BoardState.cell_colours(with_block)
@@ -45,7 +44,50 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
 
     input_state = Map.merge(socket.assigns.input_state, %{left: left, right: right})
 
-    {:noreply, assign(socket, input_state: input_state)}
+    new_block_state =
+      socket.assigns.game_state.block_state
+      |> move_left(left)
+      |> move_right(right)
+
+    dropped_block_state =
+      new_block_state
+      |> move_down(socket.assigns.game_state.frame)
+
+    updated_game_state =
+      socket.assigns.game_state
+      |> Map.put(:block_state, dropped_block_state)
+      |> Map.put(:frame, rem(socket.assigns.game_state.frame + 1, 60))
+
+    {:noreply,
+     assign(socket,
+       input_state: input_state,
+       game_state: updated_game_state,
+       cell_colours: cell_colours(updated_game_state)
+     )}
+  end
+
+  defp move_down(blk_st = %{}, frame) do
+    if rem(frame, 3) == 0 do
+      Map.put(blk_st, :y, blk_st.y + 1)
+    else
+      blk_st
+    end
+  end
+
+  defp move_right(blk_st = %{}, right) do
+    if right.count == 1 || (right.count >= 5 && rem(right.count, 6) == 0) do
+      Map.put(blk_st, :x, blk_st.x + 1)
+    else
+      blk_st
+    end
+  end
+
+  defp move_left(blk_st = %{}, left) do
+    if left.count == 1 || (left.count >= 5 && rem(left.count, 6) == 0) do
+      Map.put(blk_st, :x, blk_st.x - 1)
+    else
+      blk_st
+    end
   end
 
   def handle_event("key_down", keys, socket) do
