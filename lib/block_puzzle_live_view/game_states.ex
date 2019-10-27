@@ -5,6 +5,16 @@ defmodule BlockPuzzleLiveView.GameStates do
     %GameState{board_state: BoardState.new_board(), block_state: BlockStates.random_block()}
   end
 
+  def lock_block(game_state = %GameState{}) do
+    new_board_state = BoardState.place_block(game_state.board_state, game_state.block_state)
+
+    Map.put(
+      game_state,
+      :board_state,
+      new_board_state
+    )
+  end
+
   def can_move_left?(game_state = %GameState{}) do
     board_state_with_left_wall =
       game_state.board_state

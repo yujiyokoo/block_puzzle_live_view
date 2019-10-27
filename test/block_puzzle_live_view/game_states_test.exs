@@ -1,6 +1,7 @@
 defmodule BlockPuzzleLiveView.GameStatesTest do
   use BlockPuzzleLiveViewWeb.ConnCase
   alias BlockPuzzleLiveView.GameStates
+  alias BlockPuzzleLiveView.BlockState
 
   test "start_game gives new empty board" do
     assert GameStates.start_game().board_state == [
@@ -64,8 +65,22 @@ defmodule BlockPuzzleLiveView.GameStatesTest do
   test "can_move_left? is false at the edge of the screen" do
     state =
       GameStates.start_game()
-      |> Map.put(:block_state, %{shape: :O, orientation: 0, x: -1, y: 0})
+      |> Map.put(:block_state, %BlockState{shape: :O, orientation: 0, x: -1, y: 0})
 
     refute GameStates.can_move_left?(state)
+  end
+
+  test "lock_block locks the block in its place" do
+    state =
+      GameStates.start_game()
+      |> Map.put(:block_state, %BlockState{shape: :O, orientation: 0, x: 0, y: 18})
+
+    new_state = GameStates.lock_block(state)
+
+    assert Enum.at(new_state.board_state, 18) ==
+             [nil, :yellow, :yellow, nil, nil, nil, nil, nil, nil, nil]
+
+    assert Enum.at(new_state.board_state, 19) ==
+             [nil, :yellow, :yellow, nil, nil, nil, nil, nil, nil, nil]
   end
 end

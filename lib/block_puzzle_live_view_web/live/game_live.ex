@@ -1,7 +1,7 @@
 defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   use Phoenix.LiveView
   require Phoenix.View
-  alias BlockPuzzleLiveView.{BoardState, GameStates, GameState}
+  alias BlockPuzzleLiveView.{BlockStates, BoardState, GameStates, GameState}
 
   def render(assigns) do
     Phoenix.View.render(BlockPuzzleLiveViewWeb.PageView, "game.html", assigns)
@@ -56,6 +56,8 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     updated_game_state =
       socket.assigns.game_state
       |> Map.put(:block_state, dropped_block_state)
+      |> update_frames_since_landing()
+      |> lock_block_after_delay()
       |> Map.put(:frame, rem(socket.assigns.game_state.frame + 1, 60))
 
     {:noreply,
@@ -66,6 +68,31 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
      )}
   end
 
+  defp update_frames_since_landing(game_state) do
+    frames_since_landing =
+      if !GameStates.can_drop?(game_state) do
+        game_state.frames_since_landing + 1
+      else
+        0
+      end
+
+    Map.put(game_state, :frames_since_landing, frames_since_landing)
+  end
+
+  defp lock_block_after_delay(game_state) do
+    if game_state.frames_since_landing > 30 do
+      GameStates.lock_block(game_state)
+      |> get_new_block()
+    else
+      game_state
+    end
+  end
+
+  defp get_new_block(game_state) do
+    Map.put(game_state, :block_state, BlockStates.random_block())
+  end
+
+  # TODO: blk_st is not necessary?
   defp move_down(blk_st = %{}, game_state) do
     if rem(game_state.frame, 3) == 0 && GameStates.can_drop?(game_state) do
       Map.put(blk_st, :y, blk_st.y + 1)
