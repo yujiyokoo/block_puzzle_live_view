@@ -46,8 +46,8 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
 
     new_block_state =
       socket.assigns.game_state.block_state
-      |> move_left(left)
-      |> move_right(right)
+      |> move_left(socket.assigns.game_state, left)
+      |> move_right(socket.assigns.game_state, right)
 
     dropped_block_state =
       new_block_state
@@ -74,16 +74,20 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     end
   end
 
-  defp move_right(blk_st = %{}, right) do
-    if right.count == 1 || (right.count >= 5 && rem(right.count, 6) == 0) do
+  defp move_right(blk_st = %{}, game_state, right) do
+    right_input = right.count == 1 || (right.count >= 5 && rem(right.count, 6) == 0)
+
+    if right_input && GameStates.can_move_right?(game_state) do
       Map.put(blk_st, :x, blk_st.x + 1)
     else
       blk_st
     end
   end
 
-  defp move_left(blk_st = %{}, left) do
-    if left.count == 1 || (left.count >= 5 && rem(left.count, 6) == 0) do
+  defp move_left(blk_st = %{}, game_state, left) do
+    left_input = left.count == 1 || (left.count >= 5 && rem(left.count, 6) == 0)
+
+    if left_input && GameStates.can_move_left?(game_state) do
       Map.put(blk_st, :x, blk_st.x - 1)
     else
       blk_st

@@ -5,33 +5,82 @@ defmodule BlockPuzzleLiveView.GameStates do
     %GameState{board_state: BoardState.new_board(), block_state: BlockStates.random_block()}
   end
 
-  def can_drop?(game_state = %GameState{}) do
-    # TODO: decide whether to use nil or zero...
-    board_state_with_floor =
-      (game_state.board_state ++ [BoardState.solid_floor(), BoardState.solid_floor()])
-      |> Enum.map(fn row -> Enum.map(row, fn e -> if is_nil(e), do: 0, else: 1 end) end)
+  def can_move_left?(game_state = %GameState{}) do
+    board_state_with_left_wall =
+      game_state.board_state
+      |> Enum.map(fn row -> [:block, :block] ++ row end)
 
     rows =
       Enum.slice(
-        board_state_with_floor,
-        (game_state.block_state.y + 1)..(game_state.block_state.y + 3 + 1)
+        board_state_with_left_wall,
+        game_state.block_state.y..(game_state.block_state.y + 3)
       )
 
-    # + 1 above as this is collision check for moving down
+    # board has shifted to right by 2 when adding the left wall.
+    # so adding 1 here as this needs to work when x = -1
+    board_4x4 =
+      Enum.map(rows, fn row ->
+        Enum.slice(row, (game_state.block_state.x + 1)..(game_state.block_state.x + 3 + 1))
+      end)
+
+    # TODO: decide whether to use nil or zero...
+    block_4x4 =
+      BlockStates.as_4x4(game_state.block_state.shape, game_state.block_state.orientation)
+      |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
+
+    Enum.zip(List.flatten(block_4x4), List.flatten(board_4x4))
+    |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
+  end
+
+  def can_move_right?(game_state = %GameState{}) do
+    board_state_with_right_wall =
+      game_state.board_state
+      |> Enum.map(fn row -> row ++ [:block] end)
+
+    rows =
+      Enum.slice(
+        board_state_with_right_wall,
+        game_state.block_state.y..(game_state.block_state.y + 3)
+      )
 
     board_4x4 =
       Enum.map(rows, fn row ->
-        Enum.slice(row, game_state.block_state.x..(game_state.block_state.x + 3))
+        Enum.slice(row, (game_state.block_state.x + 1)..(game_state.block_state.x + 3 + 1))
       end)
 
+    # TODO: decide whether to use nil or zero...
     block_4x4 =
       BlockStates.as_4x4(game_state.block_state.shape, game_state.block_state.orientation)
+      |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
 
     Enum.zip(List.flatten(block_4x4), List.flatten(board_4x4))
-    |> Enum.all?(fn {l, r} -> l == 0 || r == 0 end)
+    |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
+  end
 
-    # get next positions
-    # cut out 4x4
-    # if collision, false, else true
+  def can_drop?(game_state = %GameState{}) do
+    board_state_with_floor_and_walls =
+      (game_state.board_state ++ [BoardState.solid_floor()])
+      |> Enum.map(fn row -> [:blok] ++ row ++ [:block] end)
+
+    # + 1 as this is collision check for moving down
+    rows =
+      Enum.slice(
+        board_state_with_floor_and_walls,
+        (game_state.block_state.y + 1)..(game_state.block_state.y + 3 + 1)
+      )
+
+    # + 1 as left wall has been added
+    board_4x4 =
+      Enum.map(rows, fn row ->
+        Enum.slice(row, (game_state.block_state.x + 1)..(game_state.block_state.x + 3 + 1))
+      end)
+
+    # TODO: decide whether to use nil or zero...
+    block_4x4 =
+      BlockStates.as_4x4(game_state.block_state.shape, game_state.block_state.orientation)
+      |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
+
+    Enum.zip(List.flatten(block_4x4), List.flatten(board_4x4))
+    |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
   end
 end
