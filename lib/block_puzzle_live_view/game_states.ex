@@ -8,11 +8,17 @@ defmodule BlockPuzzleLiveView.GameStates do
   def lock_block(game_state = %GameState{}) do
     new_board_state = BoardState.place_block(game_state.board_state, game_state.block_state)
 
-    Map.put(
-      game_state,
-      :board_state,
-      new_board_state
-    )
+    Map.put(game_state, :board_state, new_board_state)
+  end
+
+  def delete_full_rows(game_state = %GameState{}) do
+    without_full =
+      Enum.reject(
+        game_state.board_state,
+        fn row -> Enum.all?(row, fn elem -> !is_nil(elem) end) end
+      )
+
+    Map.put(game_state, :board_state, BoardState.refill(without_full))
   end
 
   def can_rotate_counterclockwise?(game_state = %GameState{}) do

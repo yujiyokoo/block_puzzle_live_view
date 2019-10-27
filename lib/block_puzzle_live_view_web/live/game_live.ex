@@ -125,7 +125,9 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
 
   defp lock_block_after_delay(game_state) do
     if game_state.frames_since_landing > 30 do
-      GameStates.lock_block(game_state)
+      game_state
+      |> GameStates.lock_block()
+      |> GameStates.delete_full_rows()
       |> get_new_block()
     else
       game_state

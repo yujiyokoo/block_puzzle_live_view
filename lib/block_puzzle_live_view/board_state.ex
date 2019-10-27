@@ -11,6 +11,10 @@ defmodule BlockPuzzleLiveView.BoardState do
 
   def solid_floor, do: @solid_floor
 
+  def refill(rows) do
+    List.duplicate(@empty_row, 20 - Enum.count(rows)) ++ rows
+  end
+
   def place_block(board, block_state = %BlockState{}) do
     start_row = if block_state.y < 0, do: 0, else: block_state.y
     block_row_nums = Enum.to_list(start_row..(block_state.y + 3))
