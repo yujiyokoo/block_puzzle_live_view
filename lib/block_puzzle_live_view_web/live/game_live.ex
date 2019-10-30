@@ -154,7 +154,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
 
   # TODO: blk_st is not necessary?
   defp move_down(blk_st = %{}, game_state) do
-    if rem(game_state.frame, 3) == 0 && GameStates.can_drop?(game_state) do
+    if rem(game_state.frame, 10) == 0 && GameStates.can_drop?(game_state) do
       Map.put(blk_st, :y, blk_st.y + 1)
     else
       blk_st

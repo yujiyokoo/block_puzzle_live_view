@@ -142,7 +142,7 @@ defmodule BlockPuzzleLiveView.GameStates do
   def can_move_right?(game_state = %GameState{}) do
     board_state_with_right_wall =
       game_state.board_state
-      |> Enum.map(fn row -> row ++ [:block] end)
+      |> Enum.map(fn row -> row ++ [:block, :block] end)
 
     rows =
       Enum.slice(
@@ -167,7 +167,7 @@ defmodule BlockPuzzleLiveView.GameStates do
   def can_drop?(game_state = %GameState{}) do
     board_state_with_floor_and_walls =
       (game_state.board_state ++ [BoardState.solid_floor()])
-      |> Enum.map(fn row -> [:blok] ++ row ++ [:block] end)
+      |> Enum.map(fn row -> [:block] ++ row ++ [:block, :block] end)
 
     # + 1 as this is collision check for moving down
     rows =
