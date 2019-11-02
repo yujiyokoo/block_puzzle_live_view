@@ -113,21 +113,21 @@ defmodule BlockPuzzleLiveView.GameStates do
   end
 
   def can_move_left?(game_state = %GameState{}) do
-    board_state_with_left_wall =
-      game_state.board_state
-      |> Enum.map(fn row -> [:block, :block] ++ row end)
+    board_state_with_top_left_ext =
+      ([BoardState.empty_row()] ++ game_state.board_state)
+      |> Enum.map(fn row -> [:block, :block, :block] ++ row end)
 
     rows =
       Enum.slice(
-        board_state_with_left_wall,
-        game_state.block_state.y..(game_state.block_state.y + 3)
+        board_state_with_top_left_ext,
+        (game_state.block_state.y + 1)..(game_state.block_state.y + 3 + 1)
       )
 
-    # board has shifted to right by 2 when adding the left wall.
-    # so adding 1 here as this needs to work when x = -1
+    # board has shifted to right by 3 when adding the left wall.
+    # so adding 2 here as left move is -1, (-1 + 3 = 2)
     board_4x4 =
       Enum.map(rows, fn row ->
-        Enum.slice(row, (game_state.block_state.x + 1)..(game_state.block_state.x + 3 + 1))
+        Enum.slice(row, (game_state.block_state.x + 2)..(game_state.block_state.x + 3 + 2))
       end)
 
     # TODO: decide whether to use nil or zero...
@@ -140,14 +140,14 @@ defmodule BlockPuzzleLiveView.GameStates do
   end
 
   def can_move_right?(game_state = %GameState{}) do
-    board_state_with_right_wall =
-      game_state.board_state
+    board_state_with_top_right_ext =
+      ([BoardState.empty_row()] ++ game_state.board_state)
       |> Enum.map(fn row -> row ++ [:block, :block] end)
 
     rows =
       Enum.slice(
-        board_state_with_right_wall,
-        game_state.block_state.y..(game_state.block_state.y + 3)
+        board_state_with_top_right_ext,
+        (game_state.block_state.y + 1)..(game_state.block_state.y + 3 + 1)
       )
 
     board_4x4 =
@@ -167,7 +167,7 @@ defmodule BlockPuzzleLiveView.GameStates do
   def can_drop?(game_state = %GameState{}) do
     board_state_with_floor_and_walls =
       (game_state.board_state ++ [BoardState.solid_floor()])
-      |> Enum.map(fn row -> [:block] ++ row ++ [:block, :block] end)
+      |> Enum.map(fn row -> [:block, :block] ++ row ++ [:block, :block] end)
 
     # + 1 as this is collision check for moving down
     rows =
@@ -176,10 +176,10 @@ defmodule BlockPuzzleLiveView.GameStates do
         (game_state.block_state.y + 1)..(game_state.block_state.y + 3 + 1)
       )
 
-    # + 1 as left wall has been added
+    # + 2 as left wall has been added
     board_4x4 =
       Enum.map(rows, fn row ->
-        Enum.slice(row, (game_state.block_state.x + 1)..(game_state.block_state.x + 3 + 1))
+        Enum.slice(row, (game_state.block_state.x + 2)..(game_state.block_state.x + 3 + 2))
       end)
 
     # TODO: decide whether to use nil or zero...

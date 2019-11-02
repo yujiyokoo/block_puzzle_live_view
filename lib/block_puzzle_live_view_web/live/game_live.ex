@@ -99,20 +99,18 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
         x: x
       })
 
-    new_block_state =
-      socket.assigns.game_state.block_state
-      |> move_left(socket.assigns.game_state, left)
-      |> move_right(socket.assigns.game_state, right)
-      |> rotate_clockwise(socket.assigns.game_state, z)
-      |> rotate_counterclockwise(socket.assigns.game_state, x)
+    new_game_state =
+      socket.assigns.game_state
+      |> move_left(left)
+      |> move_right(right)
+      |> rotate_clockwise(z)
+      |> rotate_counterclockwise(x)
 
-    dropped_block_state =
-      new_block_state
-      |> move_down(socket.assigns.game_state)
+    game_state_after_drop = move_down(new_game_state)
 
     updated_game_state =
       socket.assigns.game_state
-      |> Map.put(:block_state, dropped_block_state)
+      |> Map.put(:block_state, game_state_after_drop.block_state)
       |> update_frames_since_landing()
       |> lock_block_after_delay()
       |> Map.put(:frame, rem(socket.assigns.game_state.frame + 1, 60))
@@ -149,55 +147,66 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   end
 
   defp get_new_block(game_state) do
-    Map.put(game_state, :block_state, BlockStates.random_block())
+    Map.put(game_state, :block_state, %{BlockStates.random_block() | shape: :I})
   end
 
-  # TODO: blk_st is not necessary?
-  defp move_down(blk_st = %{}, game_state) do
+  defp move_down(game_state = %GameState{}) do
     if rem(game_state.frame, 10) == 0 && GameStates.can_drop?(game_state) do
-      Map.put(blk_st, :y, blk_st.y + 1)
+      %{game_state | block_state: %{game_state.block_state | y: game_state.block_state.y + 1}}
     else
-      blk_st
+      game_state
     end
   end
 
-  defp rotate_clockwise(blk_st = %{}, game_state, z) do
+  defp rotate_clockwise(game_state, z) do
     input = z.count == 1
 
     if input && GameStates.can_rotate_clockwise?(game_state) do
-      Map.put(blk_st, :orientation, rem(blk_st.orientation + 1, 4))
+      %{
+        game_state
+        | block_state: %{
+            game_state.block_state
+            | orientation: rem(game_state.block_state.orientation + 1, 4)
+          }
+      }
     else
-      blk_st
+      game_state
     end
   end
 
-  defp rotate_counterclockwise(blk_st = %{}, game_state, x) do
+  defp rotate_counterclockwise(game_state, x) do
     input = x.count == 1
 
     if input && GameStates.can_rotate_counterclockwise?(game_state) do
-      Map.put(blk_st, :orientation, rem(blk_st.orientation + 3, 4))
+      %{
+        game_state
+        | block_state: %{
+            game_state.block_state
+            | orientation: rem(game_state.block_state.orientation + 3, 4)
+          }
+      }
     else
-      blk_st
+      game_state
     end
   end
 
-  defp move_right(blk_st = %{}, game_state, right) do
-    right_input = right.count == 1 || (right.count >= 5 && rem(right.count, 6) == 0)
+  defp move_right(game_state, right) do
+    right_input = right.count == 1 || (right.count >= 15 && rem(right.count, 6) == 0)
 
     if right_input && GameStates.can_move_right?(game_state) do
-      Map.put(blk_st, :x, blk_st.x + 1)
+      %{game_state | block_state: %{game_state.block_state | x: game_state.block_state.x + 1}}
     else
-      blk_st
+      game_state
     end
   end
 
-  defp move_left(blk_st = %{}, game_state, left) do
-    left_input = left.count == 1 || (left.count >= 5 && rem(left.count, 6) == 0)
+  defp move_left(game_state, left) do
+    left_input = left.count == 1 || (left.count >= 15 && rem(left.count, 6) == 0)
 
     if left_input && GameStates.can_move_left?(game_state) do
-      Map.put(blk_st, :x, blk_st.x - 1)
+      %{game_state | block_state: %{game_state.block_state | x: game_state.block_state.x - 1}}
     else
-      blk_st
+      game_state
     end
   end
 

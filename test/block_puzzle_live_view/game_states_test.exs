@@ -37,7 +37,7 @@ defmodule BlockPuzzleLiveView.GameStatesTest do
   test "can_drop? is false at the bottom of the screen" do
     state =
       GameStates.start_game()
-      |> Map.put(:block_state, %{shape: :O, orientation: 0, x: 3, y: 18})
+      |> Map.put(:block_state, %{shape: :I, orientation: 1, x: -2, y: 16})
 
     refute GameStates.can_drop?(state)
   end
@@ -51,7 +51,7 @@ defmodule BlockPuzzleLiveView.GameStatesTest do
   test "can_move_right? is false at the edge of the screen" do
     state =
       GameStates.start_game()
-      |> Map.put(:block_state, %{shape: :O, orientation: 0, x: 7, y: 0})
+      |> Map.put(:block_state, %{shape: :I, orientation: 3, x: 8, y: 0})
 
     refute GameStates.can_move_right?(state)
   end
@@ -63,9 +63,10 @@ defmodule BlockPuzzleLiveView.GameStatesTest do
   end
 
   test "can_move_left? is false at the edge of the screen" do
+    # Note the I block can be -2 in orientation 1
     state =
       GameStates.start_game()
-      |> Map.put(:block_state, %BlockState{shape: :O, orientation: 0, x: -1, y: 0})
+      |> Map.put(:block_state, %BlockState{shape: :I, orientation: 1, x: -2, y: 0})
 
     refute GameStates.can_move_left?(state)
   end
