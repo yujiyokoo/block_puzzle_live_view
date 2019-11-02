@@ -99,21 +99,16 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
         x: x
       })
 
-    new_game_state =
+    updated_game_state =
       socket.assigns.game_state
       |> move_left(left)
       |> move_right(right)
       |> rotate_clockwise(z)
       |> rotate_counterclockwise(x)
-
-    game_state_after_drop = move_down(new_game_state)
-
-    updated_game_state =
-      socket.assigns.game_state
-      |> Map.put(:block_state, game_state_after_drop.block_state)
+      |> move_down()
       |> update_frames_since_landing()
       |> lock_block_after_delay()
-      |> Map.put(:frame, rem(socket.assigns.game_state.frame + 1, 60))
+      |> advance_frame()
 
     {:noreply,
      assign(socket,
@@ -121,6 +116,10 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
        game_state: updated_game_state,
        cell_colours: cell_colours(updated_game_state)
      )}
+  end
+
+  defp advance_frame(game_state = %GameState{}) do
+    %{game_state | frame: rem(game_state.frame + 1, 60)}
   end
 
   defp update_frames_since_landing(game_state) do
