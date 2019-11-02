@@ -147,7 +147,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   end
 
   defp get_new_block(game_state) do
-    Map.put(game_state, :block_state, %{BlockStates.random_block() | shape: :I})
+    Map.put(game_state, :block_state, BlockStates.random_block())
   end
 
   defp move_down(game_state = %GameState{}) do
