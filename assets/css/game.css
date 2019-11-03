@@ -5,6 +5,7 @@
   border: solid 3px black;
   width: 18em;
   height: 36em;
+  background-color: darkgrey;
 }
 
 .gameboard td {
