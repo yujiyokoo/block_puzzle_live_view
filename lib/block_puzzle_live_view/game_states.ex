@@ -1,6 +1,8 @@
 defmodule BlockPuzzleLiveView.GameStates do
   alias BlockPuzzleLiveView.{GameState, BlockStates, BoardState}
 
+  @stages [:moving, :flashing, :deleting]
+
   def start_game do
     %GameState{
       board_state: BoardState.new_board(),
@@ -26,25 +28,9 @@ defmodule BlockPuzzleLiveView.GameStates do
   end
 
   def check_game_over(game_state = %GameState{}) do
-    board_state_with_floor_and_walls =
-      (game_state.board_state ++ [BoardState.solid_floor()])
-      |> Enum.map(fn row -> [:blok] ++ row ++ [:block] end)
+    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
+    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
 
-    extended_board = [:blok] ++ BoardState.empty_row() ++ [:block]
-
-    rows =
-      Enum.slice(
-        board_state_with_floor_and_walls,
-        (game_state.block_state.y + 1)..(game_state.block_state.y + 1 + 3)
-      )
-
-    # + 1 as left wall has been added
-    board_4x4 =
-      Enum.map(rows, fn row ->
-        Enum.slice(row, (game_state.block_state.x + 1)..(game_state.block_state.x + 3 + 1))
-      end)
-
-    # TODO: decide whether to use nil or zero...
     block_4x4 =
       BlockStates.as_4x4(game_state.block_state)
       |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
@@ -60,22 +46,18 @@ defmodule BlockPuzzleLiveView.GameStates do
     end
   end
 
+  defp board_4x4(board, block_state, adjustments, movements = %{}) do
+    adjusted_x = block_state.x + adjustments.x + movements.x
+    adjusted_y = block_state.y + adjustments.y + movements.y
+
+    rows = Enum.slice(board, adjusted_y..(adjusted_y + 3))
+
+    board_4x4 = Enum.map(rows, fn row -> Enum.slice(row, adjusted_x..(adjusted_x + 3)) end)
+  end
+
   def can_rotate_counterclockwise?(game_state = %GameState{}) do
-    board_state_with_floor_and_walls =
-      (game_state.board_state ++ [BoardState.solid_floor()])
-      |> Enum.map(fn row -> [:blok] ++ row ++ [:block] end)
-
-    rows =
-      Enum.slice(
-        board_state_with_floor_and_walls,
-        game_state.block_state.y..(game_state.block_state.y + 3)
-      )
-
-    # + 1 as left wall has been added
-    board_4x4 =
-      Enum.map(rows, fn row ->
-        Enum.slice(row, (game_state.block_state.x + 1)..(game_state.block_state.x + 3 + 1))
-      end)
+    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
+    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
 
     # TODO: decide whether to use nil or zero...
     block_4x4 =
@@ -87,21 +69,8 @@ defmodule BlockPuzzleLiveView.GameStates do
   end
 
   def can_rotate_clockwise?(game_state = %GameState{}) do
-    board_state_with_floor_and_walls =
-      (game_state.board_state ++ [BoardState.solid_floor()])
-      |> Enum.map(fn row -> [:blok] ++ row ++ [:block] end)
-
-    rows =
-      Enum.slice(
-        board_state_with_floor_and_walls,
-        game_state.block_state.y..(game_state.block_state.y + 3)
-      )
-
-    # + 1 as left wall has been added
-    board_4x4 =
-      Enum.map(rows, fn row ->
-        Enum.slice(row, (game_state.block_state.x + 1)..(game_state.block_state.x + 3 + 1))
-      end)
+    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
+    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
 
     # TODO: decide whether to use nil or zero...
     block_4x4 =
@@ -113,24 +82,9 @@ defmodule BlockPuzzleLiveView.GameStates do
   end
 
   def can_move_left?(game_state = %GameState{}) do
-    board_state_with_top_left_ext =
-      ([BoardState.empty_row()] ++ game_state.board_state)
-      |> Enum.map(fn row -> [:block, :block, :block] ++ row end)
+    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
+    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: -1, y: 0})
 
-    rows =
-      Enum.slice(
-        board_state_with_top_left_ext,
-        (game_state.block_state.y + 1)..(game_state.block_state.y + 3 + 1)
-      )
-
-    # board has shifted to right by 3 when adding the left wall.
-    # so adding 2 here as left move is -1, (-1 + 3 = 2)
-    board_4x4 =
-      Enum.map(rows, fn row ->
-        Enum.slice(row, (game_state.block_state.x + 2)..(game_state.block_state.x + 3 + 2))
-      end)
-
-    # TODO: decide whether to use nil or zero...
     block_4x4 =
       BlockStates.as_4x4(game_state.block_state)
       |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
@@ -140,22 +94,9 @@ defmodule BlockPuzzleLiveView.GameStates do
   end
 
   def can_move_right?(game_state = %GameState{}) do
-    board_state_with_top_right_ext =
-      ([BoardState.empty_row()] ++ game_state.board_state)
-      |> Enum.map(fn row -> row ++ [:block, :block] end)
+    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
+    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 1, y: 0})
 
-    rows =
-      Enum.slice(
-        board_state_with_top_right_ext,
-        (game_state.block_state.y + 1)..(game_state.block_state.y + 3 + 1)
-      )
-
-    board_4x4 =
-      Enum.map(rows, fn row ->
-        Enum.slice(row, (game_state.block_state.x + 1)..(game_state.block_state.x + 3 + 1))
-      end)
-
-    # TODO: decide whether to use nil or zero...
     block_4x4 =
       BlockStates.as_4x4(game_state.block_state)
       |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
@@ -165,24 +106,9 @@ defmodule BlockPuzzleLiveView.GameStates do
   end
 
   def can_drop?(game_state = %GameState{}) do
-    board_state_with_floor_and_walls =
-      (game_state.board_state ++ [BoardState.solid_floor()])
-      |> Enum.map(fn row -> [:block, :block] ++ row ++ [:block, :block] end)
+    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
+    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 1})
 
-    # + 1 as this is collision check for moving down
-    rows =
-      Enum.slice(
-        board_state_with_floor_and_walls,
-        (game_state.block_state.y + 1)..(game_state.block_state.y + 3 + 1)
-      )
-
-    # + 2 as left wall has been added
-    board_4x4 =
-      Enum.map(rows, fn row ->
-        Enum.slice(row, (game_state.block_state.x + 2)..(game_state.block_state.x + 3 + 2))
-      end)
-
-    # TODO: decide whether to use nil or zero...
     block_4x4 =
       BlockStates.as_4x4(game_state.block_state)
       |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)

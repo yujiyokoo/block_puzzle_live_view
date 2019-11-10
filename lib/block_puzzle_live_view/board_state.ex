@@ -16,6 +16,14 @@ defmodule BlockPuzzleLiveView.BoardState do
     List.duplicate(@empty_row, 20 - Enum.count(rows)) ++ rows
   end
 
+  def extend_board(board_state) do
+    extended_board =
+      ([empty_row()] ++ board_state ++ [solid_floor(), solid_floor()])
+      |> Enum.map(fn row -> [:block, :block, :block] ++ row ++ [:block, :block] end)
+
+    {extended_board, %{x: 3, y: 1}}
+  end
+
   def place_block(board, block_state = %BlockState{}) do
     start_row = if block_state.y < 0, do: 0, else: block_state.y
     block_row_nums = Enum.to_list(start_row..(block_state.y + 3))
