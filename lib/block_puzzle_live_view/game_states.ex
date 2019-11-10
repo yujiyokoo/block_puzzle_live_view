@@ -31,12 +31,8 @@ defmodule BlockPuzzleLiveView.GameStates do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
 
-    block_4x4 =
-      BlockStates.as_4x4(game_state.block_state)
-      |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
-
     game_over =
-      Enum.zip(List.flatten(block_4x4), List.flatten(board_4x4))
+      Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
       |> Enum.any?(fn {l, r} -> !is_nil(l) && !is_nil(r) end)
 
     if game_over do
@@ -59,12 +55,7 @@ defmodule BlockPuzzleLiveView.GameStates do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
 
-    # TODO: decide whether to use nil or zero...
-    block_4x4 =
-      BlockStates.as_4x4(BlockStates.counterclockwise_next(game_state.block_state))
-      |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
-
-    Enum.zip(List.flatten(block_4x4), List.flatten(board_4x4))
+    Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
     |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
   end
 
@@ -72,12 +63,7 @@ defmodule BlockPuzzleLiveView.GameStates do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
 
-    # TODO: decide whether to use nil or zero...
-    block_4x4 =
-      BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
-      |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
-
-    Enum.zip(List.flatten(block_4x4), List.flatten(board_4x4))
+    Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
     |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
   end
 
@@ -85,11 +71,7 @@ defmodule BlockPuzzleLiveView.GameStates do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: -1, y: 0})
 
-    block_4x4 =
-      BlockStates.as_4x4(game_state.block_state)
-      |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
-
-    Enum.zip(List.flatten(block_4x4), List.flatten(board_4x4))
+    Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
     |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
   end
 
@@ -97,11 +79,7 @@ defmodule BlockPuzzleLiveView.GameStates do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 1, y: 0})
 
-    block_4x4 =
-      BlockStates.as_4x4(game_state.block_state)
-      |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
-
-    Enum.zip(List.flatten(block_4x4), List.flatten(board_4x4))
+    Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
     |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
   end
 
@@ -109,11 +87,12 @@ defmodule BlockPuzzleLiveView.GameStates do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 1})
 
-    block_4x4 =
-      BlockStates.as_4x4(game_state.block_state)
-      |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
-
-    Enum.zip(List.flatten(block_4x4), List.flatten(board_4x4))
+    Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
     |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
+  end
+
+  defp block_4x4(game_state) do
+    BlockStates.as_4x4(game_state.block_state)
+    |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
   end
 end
