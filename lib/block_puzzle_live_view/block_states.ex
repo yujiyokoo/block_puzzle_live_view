@@ -45,187 +45,196 @@ defmodule BlockPuzzleLiveView.BlockStates do
     %{
       I: [
         [
-          [0, 0, 0, 0],
+          [nil, nil, nil, nil],
           [1, 1, 1, 1],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
+          [nil, nil, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 0, 1, 0],
-          [0, 0, 1, 0],
-          [0, 0, 1, 0],
-          [0, 0, 1, 0]
+          [nil, nil, 1, nil],
+          [nil, nil, 1, nil],
+          [nil, nil, 1, nil],
+          [nil, nil, 1, nil]
         ],
         [
-          [0, 0, 0, 0],
-          [0, 0, 0, 0],
+          [nil, nil, nil, nil],
+          [nil, nil, nil, nil],
           [1, 1, 1, 1],
-          [0, 0, 0, 0]
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 1, 0, 0]
+          [nil, 1, nil, nil],
+          [nil, 1, nil, nil],
+          [nil, 1, nil, nil],
+          [nil, 1, nil, nil]
         ]
       ],
       T: [
         [
-          [0, 1, 0, 0],
-          [1, 1, 1, 0],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
+          [nil, 1, nil, nil],
+          [1, 1, 1, nil],
+          [nil, nil, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 1, 0, 0],
-          [0, 1, 1, 0],
-          [0, 1, 0, 0],
-          [0, 0, 0, 0]
+          [nil, 1, nil, nil],
+          [nil, 1, 1, nil],
+          [nil, 1, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 0, 0, 0],
-          [1, 1, 1, 0],
-          [0, 1, 0, 0],
-          [0, 0, 0, 0]
+          [nil, nil, nil, nil],
+          [1, 1, 1, nil],
+          [nil, 1, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 1, 0, 0],
-          [1, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 0, 0, 0]
+          [nil, 1, nil, nil],
+          [1, 1, nil, nil],
+          [nil, 1, nil, nil],
+          [nil, nil, nil, nil]
         ]
       ],
       O: [
         [
-          [0, 1, 1, 0],
-          [0, 1, 1, 0],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
+          [nil, 1, 1, nil],
+          [nil, 1, 1, nil],
+          [nil, nil, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 1, 1, 0],
-          [0, 1, 1, 0],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
+          [nil, 1, 1, nil],
+          [nil, 1, 1, nil],
+          [nil, nil, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 1, 1, 0],
-          [0, 1, 1, 0],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
+          [nil, 1, 1, nil],
+          [nil, 1, 1, nil],
+          [nil, nil, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 1, 1, 0],
-          [0, 1, 1, 0],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
+          [nil, 1, 1, nil],
+          [nil, 1, 1, nil],
+          [nil, nil, nil, nil],
+          [nil, nil, nil, nil]
         ]
       ],
       J: [
         [
-          [1, 0, 0, 0],
-          [1, 1, 1, 0],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
+          [1, nil, nil, nil],
+          [1, 1, 1, nil],
+          [nil, nil, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 1, 1, 0],
-          [0, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 0, 0, 0]
+          [nil, 1, 1, nil],
+          [nil, 1, nil, nil],
+          [nil, 1, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 0, 0, 0],
-          [1, 1, 1, 0],
-          [0, 0, 1, 0],
-          [0, 0, 0, 0]
+          [nil, nil, nil, nil],
+          [1, 1, 1, nil],
+          [nil, nil, 1, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 1, 0, 0],
-          [0, 1, 0, 0],
-          [1, 1, 0, 0],
-          [0, 0, 0, 0]
+          [nil, 1, nil, nil],
+          [nil, 1, nil, nil],
+          [1, 1, nil, nil],
+          [nil, nil, nil, nil]
         ]
       ],
       L: [
         [
-          [0, 0, 1, 0],
-          [1, 1, 1, 0],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
+          [nil, nil, 1, nil],
+          [1, 1, 1, nil],
+          [nil, nil, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 1, 1, 0],
-          [0, 0, 0, 0]
+          [nil, 1, nil, nil],
+          [nil, 1, nil, nil],
+          [nil, 1, 1, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 0, 0, 0],
-          [1, 1, 1, 0],
-          [1, 0, 0, 0],
-          [0, 0, 0, 0]
+          [nil, nil, nil, nil],
+          [1, 1, 1, nil],
+          [1, nil, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [1, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 0, 0, 0]
+          [1, 1, nil, nil],
+          [nil, 1, nil, nil],
+          [nil, 1, nil, nil],
+          [nil, nil, nil, nil]
         ]
       ],
       S: [
         [
-          [0, 1, 1, 0],
-          [1, 1, 0, 0],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
+          [nil, 1, 1, nil],
+          [1, 1, nil, nil],
+          [nil, nil, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 1, 0, 0],
-          [0, 1, 1, 0],
-          [0, 0, 1, 0],
-          [0, 0, 0, 0]
+          [nil, 1, nil, nil],
+          [nil, 1, 1, nil],
+          [nil, nil, 1, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 0, 0, 0],
-          [0, 1, 1, 0],
-          [1, 1, 0, 0],
-          [0, 0, 0, 0]
+          [nil, nil, nil, nil],
+          [nil, 1, 1, nil],
+          [1, 1, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [1, 0, 0, 0],
-          [1, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 0, 0, 0]
+          [1, nil, nil, nil],
+          [1, 1, nil, nil],
+          [nil, 1, nil, nil],
+          [nil, nil, nil, nil]
         ]
       ],
       Z: [
         [
-          [1, 1, 0, 0],
-          [0, 1, 1, 0],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
+          [1, 1, nil, nil],
+          [nil, 1, 1, nil],
+          [nil, nil, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 0, 1, 0],
-          [0, 1, 1, 0],
-          [0, 1, 0, 0],
-          [0, 0, 0, 0]
+          [nil, nil, 1, nil],
+          [nil, 1, 1, nil],
+          [nil, 1, nil, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 0, 0, 0],
-          [1, 1, 0, 0],
-          [0, 1, 1, 0],
-          [0, 0, 0, 0]
+          [nil, nil, nil, nil],
+          [1, 1, nil, nil],
+          [nil, 1, 1, nil],
+          [nil, nil, nil, nil]
         ],
         [
-          [0, 1, 0, 0],
-          [1, 1, 0, 0],
-          [1, 0, 0, 0],
-          [0, 0, 0, 0]
+          [nil, 1, nil, nil],
+          [1, 1, nil, nil],
+          [1, nil, nil, nil],
+          [nil, nil, nil, nil]
         ]
       ],
-      NULL: List.duplicate([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], 4)
+      NULL:
+        List.duplicate(
+          [
+            [nil, nil, nil, nil],
+            [nil, nil, nil, nil],
+            [nil, nil, nil, nil],
+            [nil, nil, nil, nil]
+          ],
+          4
+        )
     }
   end
 end

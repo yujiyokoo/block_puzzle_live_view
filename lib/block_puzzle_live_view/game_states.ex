@@ -31,15 +31,18 @@ defmodule BlockPuzzleLiveView.GameStates do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
 
-    game_over =
-      Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
-      |> Enum.any?(fn {l, r} -> !is_nil(l) && !is_nil(r) end)
+    game_over = collide?(block_4x4(game_state.block_state), board_4x4)
 
     if game_over do
       Map.put(game_state, :running, false)
     else
       game_state
     end
+  end
+
+  defp collide?(block, board) do
+    Enum.zip(List.flatten(block), List.flatten(board))
+    |> Enum.any?(fn {l, r} -> !is_nil(l) && !is_nil(r) end)
   end
 
   defp board_4x4(board, block_state, adjustments, movements = %{}) do
@@ -54,45 +57,42 @@ defmodule BlockPuzzleLiveView.GameStates do
   def can_rotate_counterclockwise?(game_state = %GameState{}) do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
+    block_4x4 = BlockStates.as_4x4(BlockStates.counterclockwise_next(game_state.block_state))
 
-    Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
-    |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
+    !collide?(block_4x4, board_4x4)
   end
 
   def can_rotate_clockwise?(game_state = %GameState{}) do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
+    block_4x4 = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
 
-    Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
-    |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
+    !collide?(block_4x4, board_4x4)
   end
 
   def can_move_left?(game_state = %GameState{}) do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: -1, y: 0})
 
-    Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
-    |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
+    !collide?(block_4x4(game_state.block_state), board_4x4)
   end
 
   def can_move_right?(game_state = %GameState{}) do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 1, y: 0})
 
-    Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
-    |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
+    !collide?(block_4x4(game_state.block_state), board_4x4)
   end
 
   def can_drop?(game_state = %GameState{}) do
     {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
     board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 1})
 
-    Enum.zip(List.flatten(block_4x4(game_state)), List.flatten(board_4x4))
-    |> Enum.all?(fn {l, r} -> is_nil(l) || is_nil(r) end)
+    !collide?(block_4x4(game_state.block_state), board_4x4)
   end
 
-  defp block_4x4(game_state) do
-    BlockStates.as_4x4(game_state.block_state)
+  defp block_4x4(block_state) do
+    BlockStates.as_4x4(block_state)
     |> Enum.map(fn row -> Enum.map(row, fn e -> if e == 0, do: nil, else: e end) end)
   end
 end
