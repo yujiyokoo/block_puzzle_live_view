@@ -27,19 +27,6 @@ defmodule BlockPuzzleLiveView.GameStates do
     Map.put(game_state, :board_state, BoardState.refill(without_full))
   end
 
-  def check_game_over(game_state = %GameState{}) do
-    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
-    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
-
-    game_over = collide?(block_4x4(game_state.block_state), board_4x4)
-
-    if game_over do
-      Map.put(game_state, :running, false)
-    else
-      game_state
-    end
-  end
-
   defp collide?(block, board) do
     Enum.zip(List.flatten(block), List.flatten(board))
     |> Enum.any?(fn {l, r} -> !is_nil(l) && !is_nil(r) end)
@@ -54,41 +41,55 @@ defmodule BlockPuzzleLiveView.GameStates do
     board_4x4 = Enum.map(rows, fn row -> Enum.slice(row, adjusted_x..(adjusted_x + 3)) end)
   end
 
+  def check_game_over(game_state = %GameState{}) do
+    board_4x4 = get_4x4_board(game_state, %{x: 0, y: 0})
+
+    game_over = collide?(block_4x4(game_state.block_state), board_4x4)
+
+    if game_over do
+      Map.put(game_state, :running, false)
+    else
+      game_state
+    end
+  end
+
   def can_rotate_counterclockwise?(game_state = %GameState{}) do
-    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
-    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
+    board_4x4 = get_4x4_board(game_state, %{x: 0, y: 0})
+
     block_4x4 = BlockStates.as_4x4(BlockStates.counterclockwise_next(game_state.block_state))
 
     !collide?(block_4x4, board_4x4)
   end
 
   def can_rotate_clockwise?(game_state = %GameState{}) do
-    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
-    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 0})
+    board_4x4 = get_4x4_board(game_state, %{x: 0, y: 0})
+
     block_4x4 = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
 
     !collide?(block_4x4, board_4x4)
   end
 
   def can_move_left?(game_state = %GameState{}) do
-    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
-    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: -1, y: 0})
+    board_4x4 = get_4x4_board(game_state, %{x: -1, y: 0})
 
     !collide?(block_4x4(game_state.block_state), board_4x4)
   end
 
   def can_move_right?(game_state = %GameState{}) do
-    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
-    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 1, y: 0})
+    board_4x4 = get_4x4_board(game_state, %{x: 1, y: 0})
 
     !collide?(block_4x4(game_state.block_state), board_4x4)
   end
 
   def can_drop?(game_state = %GameState{}) do
-    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
-    board_4x4 = board_4x4(extended_board, game_state.block_state, adjustments, %{x: 0, y: 1})
+    board_4x4 = get_4x4_board(game_state, %{x: 0, y: 1})
 
     !collide?(block_4x4(game_state.block_state), board_4x4)
+  end
+
+  defp get_4x4_board(game_state = %GameState{}, movement) do
+    {extended_board, adjustments} = BoardState.extend_board(game_state.board_state)
+    board_4x4(extended_board, game_state.block_state, adjustments, movement)
   end
 
   defp block_4x4(block_state) do
