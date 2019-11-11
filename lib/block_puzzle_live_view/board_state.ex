@@ -28,30 +28,38 @@ defmodule BlockPuzzleLiveView.BoardState do
     start_row = if block_state.y < 0, do: 0, else: block_state.y
     block_row_nums = Enum.to_list(start_row..(block_state.y + 3))
 
-    Enum.to_list(0..(length(board) - 1))
+    indexes_of(board)
     |> Enum.map(fn row_idx ->
-      board_row = Enum.at(board, row_idx)
-
-      if Enum.member?(block_row_nums, row_idx) do
-        block_row =
-          BlockStates.as_4x4(block_state)
-          |> Enum.at(row_idx - block_state.y)
-
-        cols_to_update = Enum.to_list(block_state.x..(block_state.x + 3))
-
-        Enum.to_list(0..(length(board_row) - 1))
-        |> Enum.map(fn col_idx ->
-          if Enum.member?(cols_to_update, col_idx) &&
-               Enum.at(block_row, col_idx - block_state.x) == 1 do
-            BlockStates.colour(block_state.shape)
-          else
-            Enum.at(board_row, col_idx)
-          end
-        end)
-      else
-        board_row
-      end
+      process_row(row_idx, Enum.at(board, row_idx), block_state, block_row_nums)
     end)
+  end
+
+  defp indexes_of(board), do: Enum.to_list(0..(length(board) - 1))
+
+  defp process_row(row_idx, board_row, block_state, block_row_nums) do
+    if Enum.member?(block_row_nums, row_idx) do
+      indexes_of(board_row)
+      |> Enum.map(fn col_idx ->
+        board_cell_or_block(col_idx, block_state, board_row, row_idx)
+      end)
+    else
+      board_row
+    end
+  end
+
+  defp board_cell_or_block(col_idx, block_state, board_row, row_idx) do
+    col_idxs_to_update = Enum.to_list(block_state.x..(block_state.x + 3))
+
+    block_row =
+      BlockStates.as_4x4(block_state)
+      |> Enum.at(row_idx - block_state.y)
+
+    if Enum.member?(col_idxs_to_update, col_idx) &&
+         !is_nil(Enum.at(block_row, col_idx - block_state.x)) do
+      BlockStates.colour(block_state.shape)
+    else
+      Enum.at(board_row, col_idx)
+    end
   end
 
   def cell_colours(board) do

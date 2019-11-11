@@ -56,17 +56,17 @@ defmodule BlockPuzzleLiveView.GameStates do
   def can_rotate_counterclockwise?(game_state = %GameState{}) do
     board_4x4 = get_4x4_board(game_state, %{x: 0, y: 0})
 
-    block_4x4 = BlockStates.as_4x4(BlockStates.counterclockwise_next(game_state.block_state))
+    block_section = BlockStates.as_4x4(BlockStates.counterclockwise_next(game_state.block_state))
 
-    !collide?(block_4x4, board_4x4)
+    !collide?(block_section, board_4x4)
   end
 
   def can_rotate_clockwise?(game_state = %GameState{}) do
     board_4x4 = get_4x4_board(game_state, %{x: 0, y: 0})
 
-    block_4x4 = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
+    block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
 
-    !collide?(block_4x4, board_4x4)
+    !collide?(block_section, board_4x4)
   end
 
   def can_move_left?(game_state = %GameState{}) do
