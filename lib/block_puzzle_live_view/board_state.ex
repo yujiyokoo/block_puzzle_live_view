@@ -25,29 +25,37 @@ defmodule BlockPuzzleLiveView.BoardState do
   end
 
   def place_block(board, block_state = %BlockState{}) do
+    place_block_with_colour(board, block_state, BlockStates.colour(block_state.shape))
+  end
+
+  def whiten_block(board, block_state = %BlockState{}) do
+    place_block_with_colour(board, block_state, :white)
+  end
+
+  defp place_block_with_colour(board, block_state = %BlockState{}, colour) do
     start_row = if block_state.y < 0, do: 0, else: block_state.y
     block_row_nums = Enum.to_list(start_row..(block_state.y + 3))
 
     indexes_of(board)
     |> Enum.map(fn row_idx ->
-      process_row(row_idx, Enum.at(board, row_idx), block_state, block_row_nums)
+      process_row(row_idx, Enum.at(board, row_idx), block_state, block_row_nums, colour)
     end)
   end
 
   defp indexes_of(board), do: Enum.to_list(0..(length(board) - 1))
 
-  defp process_row(row_idx, board_row, block_state, block_row_nums) do
+  defp process_row(row_idx, board_row, block_state, block_row_nums, colour) do
     if Enum.member?(block_row_nums, row_idx) do
       indexes_of(board_row)
       |> Enum.map(fn col_idx ->
-        board_cell_or_block(col_idx, block_state, board_row, row_idx)
+        board_cell_or_block(col_idx, block_state, board_row, row_idx, colour)
       end)
     else
       board_row
     end
   end
 
-  defp board_cell_or_block(col_idx, block_state, board_row, row_idx) do
+  defp board_cell_or_block(col_idx, block_state, board_row, row_idx, colour) do
     col_idxs_to_update = Enum.to_list(block_state.x..(block_state.x + 3))
 
     block_row =
@@ -56,16 +64,31 @@ defmodule BlockPuzzleLiveView.BoardState do
 
     if Enum.member?(col_idxs_to_update, col_idx) &&
          !is_nil(Enum.at(block_row, col_idx - block_state.x)) do
-      BlockStates.colour(block_state.shape)
+      colour
     else
       Enum.at(board_row, col_idx)
     end
   end
 
+  def darken_full_rows(board_state, :row_darkening) do
+    Enum.map(
+      board_state,
+      fn row ->
+        if Enum.all?(row, fn elem -> !is_nil(elem) end) do
+          Enum.map(row, fn _cell -> :grey end)
+        else
+          row
+        end
+      end
+    )
+  end
+
+  def darken_full_rows(board_state, _), do: board_state
+
   def cell_colours(board) do
     Enum.map(board, fn row -> Enum.map(row, &cell_to_colour/1) end)
   end
 
-  defp cell_to_colour(nil), do: ""
+  defp cell_to_colour(nil), do: nil
   defp cell_to_colour(colour), do: Atom.to_string(colour)
 end

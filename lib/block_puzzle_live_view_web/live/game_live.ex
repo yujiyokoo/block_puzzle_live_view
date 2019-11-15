@@ -15,7 +15,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     game_state = %GameState{
       board_state: BoardState.new_board(),
       block_state: BlockStates.null_block(),
-      running: false
+      current_state: :stopped
     }
 
     {:ok,
@@ -24,6 +24,12 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
        game_state: game_state,
        cell_colours: cell_colours(game_state)
      )}
+  end
+
+  defp cell_colours(game_state = %GameState{current_state: :flashing}) do
+    with_block = BoardState.whiten_block(game_state.board_state, game_state.block_state)
+
+    BoardState.cell_colours(with_block)
   end
 
   defp cell_colours(game_state = %GameState{}) do
@@ -79,7 +85,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   end
 
   def handle_info(:update, socket) do
-    if socket.assigns.game_state.running do
+    if socket.assigns.game_state.current_state != :stopped do
       do_update(socket)
     else
       {:noreply, socket}
@@ -106,15 +112,20 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       |> rotate_clockwise(z)
       |> rotate_counterclockwise(x)
       |> move_down()
-      |> update_frames_since_landing()
-      |> lock_block_after_delay()
+      |> GameStates.flash_block()
+      |> GameStates.set_darkening_state()
+      |> GameStates.delete_full_rows()
+      |> GameStates.get_new_block()
+      |> GameStates.check_game_over()
       |> advance_frame()
 
     {:noreply,
      assign(socket,
        input_state: input_state,
        game_state: updated_game_state,
-       cell_colours: cell_colours(updated_game_state)
+       cell_colours:
+         cell_colours(updated_game_state)
+         |> BoardState.darken_full_rows(updated_game_state.current_state)
      )}
   end
 
@@ -133,29 +144,27 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     Map.put(game_state, :frames_since_landing, frames_since_landing)
   end
 
-  defp lock_block_after_delay(game_state) do
-    if game_state.frames_since_landing > 30 do
-      game_state
-      |> GameStates.lock_block()
-      |> GameStates.delete_full_rows()
-      |> get_new_block()
-      |> GameStates.check_game_over()
+  defp move_down(game_state = %GameState{current_state: :moving}) do
+    if GameStates.can_drop?(game_state) do
+      if rem(game_state.frame, 10) == 0 do
+        %{
+          game_state
+          | block_state: %{game_state.block_state | y: game_state.block_state.y + 1},
+            current_state_remaining: -1
+        }
+      else
+        game_state
+      end
     else
-      game_state
+      case game_state.current_state_remaining do
+        -1 -> %{game_state | current_state_remaining: 60}
+        0 -> %{game_state | current_state: :flashing, current_state_remaining: 30}
+        _ -> %{game_state | current_state_remaining: game_state.current_state_remaining - 1}
+      end
     end
   end
 
-  defp get_new_block(game_state) do
-    Map.put(game_state, :block_state, BlockStates.random_block())
-  end
-
-  defp move_down(game_state = %GameState{}) do
-    if rem(game_state.frame, 10) == 0 && GameStates.can_drop?(game_state) do
-      %{game_state | block_state: %{game_state.block_state | y: game_state.block_state.y + 1}}
-    else
-      game_state
-    end
-  end
+  defp move_down(game_state = %GameState{}), do: game_state
 
   defp rotate_clockwise(game_state, z) do
     input = z.count == 1
@@ -199,7 +208,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     end
   end
 
-  defp move_left(game_state, left) do
+  defp move_left(game_state = %GameState{current_state: :moving}, left) do
     left_input = left.count == 1 || (left.count >= 15 && rem(left.count, 6) == 0)
 
     if left_input && GameStates.can_move_left?(game_state) do
@@ -207,6 +216,10 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     else
       game_state
     end
+  end
+
+  defp move_left(game_state, _) do
+    game_state
   end
 
   def handle_event("key_down", keys, socket) do
@@ -319,7 +332,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       })
 
     game_state =
-      if keys["key"] == " " && !socket.assigns.game_state.running do
+      if keys["key"] == " " && socket.assigns.game_state.current_state == :stopped do
         GameStates.start_game()
       else
         socket.assigns.game_state

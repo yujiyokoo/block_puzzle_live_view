@@ -1,31 +1,84 @@
 defmodule BlockPuzzleLiveView.GameStates do
   alias BlockPuzzleLiveView.{GameState, BlockStates, BoardState}
 
-  @stages [:moving, :flashing, :deleting]
+  @stages [:stopped, :moving, :flashing, :row_darkening, :row_deleting, :landed]
 
   def start_game do
     %GameState{
       board_state: BoardState.new_board(),
       block_state: BlockStates.random_block(),
-      running: true
+      current_state: :moving
     }
   end
 
-  def lock_block(game_state = %GameState{}) do
-    new_board_state = BoardState.place_block(game_state.board_state, game_state.block_state)
+  def flash_block(game_state = %GameState{current_state: :flashing}) do
+    if game_state.current_state_remaining >= 0 do
+      new_board_state = BoardState.place_block(game_state.board_state, game_state.block_state)
 
-    Map.put(game_state, :board_state, new_board_state)
+      %{
+        game_state
+        | board_state: new_board_state,
+          current_state_remaining: game_state.current_state_remaining - 1
+      }
+    else
+      %{game_state | current_state: :row_darkening, current_state_remaining: 30}
+    end
   end
 
-  def delete_full_rows(game_state = %GameState{}) do
+  def flash_block(game_state = %GameState{}), do: game_state
+
+  # def lock_block(game_state = %GameState{}) do
+  # new_board_state = BoardState.place_block(game_state.board_state, game_state.block_state)
+  #
+  # %{
+  # game_state
+  # | board_state: new_board_state,
+  # current_state: :row_darkening,
+  # current_state_remaining: 30
+  # }
+  # end
+
+  def set_darkening_state(
+        game_state = %GameState{current_state: :row_darkening, current_state_remaining: 0}
+      ) do
+    %{game_state | current_state: :row_deleting}
+  end
+
+  def set_darkening_state(game_state = %GameState{current_state: :row_darkening}) do
+    remaining = game_state.current_state_remaining - 1
+
+    %{game_state | current_state_remaining: remaining}
+  end
+
+  def set_darkening_state(game_state = %GameState{}), do: game_state
+
+  def delete_full_rows(game_state = %GameState{current_state: :row_deleting}) do
     without_full =
       Enum.reject(
         game_state.board_state,
         fn row -> Enum.all?(row, fn elem -> !is_nil(elem) end) end
       )
 
-    Map.put(game_state, :board_state, BoardState.refill(without_full))
+    %{
+      game_state
+      | board_state: BoardState.refill(without_full),
+        current_state: :getting_new_block,
+        current_state_remaining: 30
+    }
   end
+
+  def delete_full_rows(game_state = %GameState{}), do: game_state
+
+  def get_new_block(game_state = %GameState{current_state: :getting_new_block}) do
+    %{
+      game_state
+      | block_state: BlockStates.random_block(),
+        current_state: :moving,
+        current_state_remaining: -1
+    }
+  end
+
+  def get_new_block(game_state = %GameState{}), do: game_state
 
   defp collide?(block, board) do
     Enum.zip(List.flatten(block), List.flatten(board))
@@ -41,17 +94,19 @@ defmodule BlockPuzzleLiveView.GameStates do
     board_4x4 = Enum.map(rows, fn row -> Enum.slice(row, adjusted_x..(adjusted_x + 3)) end)
   end
 
-  def check_game_over(game_state = %GameState{}) do
+  def check_game_over(game_state = %GameState{current_state: :moving}) do
     board_4x4 = get_4x4_board(game_state, %{x: 0, y: 0})
 
     game_over = collide?(block_4x4(game_state.block_state), board_4x4)
 
     if game_over do
-      Map.put(game_state, :running, false)
+      Map.put(game_state, :current_state, :stopped)
     else
       game_state
     end
   end
+
+  def check_game_over(game_state = %GameState{}), do: game_state
 
   def can_rotate_counterclockwise?(game_state = %GameState{}) do
     board_4x4 = get_4x4_board(game_state, %{x: 0, y: 0})
