@@ -107,6 +107,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
 
     updated_game_state =
       socket.assigns.game_state
+      |> hard_drop(up)
       |> move_left(left)
       |> move_right(right)
       |> rotate_clockwise(z)
@@ -208,6 +209,39 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     end
   end
 
+  defp hard_drop(game_state = %GameState{current_state: :moving}, up) do
+    up_input = up.count == 1 || (up.count >= 15 && rem(up.count, 6) == 0)
+
+    if up_input do
+      %{block_state: block_state} = hard_drop_position(game_state)
+
+      %{
+        game_state
+        | block_state: %{
+            game_state.block_state
+            | y: block_state.y
+          },
+          current_state: :flashing,
+          current_state_remaining: 30
+      }
+    else
+      game_state
+    end
+  end
+
+  defp hard_drop(game_state, _), do: game_state
+
+  defp hard_drop_position(game_state) do
+    if GameStates.can_drop?(game_state) do
+      hard_drop_position(%{
+        game_state
+        | block_state: %{game_state.block_state | y: game_state.block_state.y + 1}
+      })
+    else
+      game_state
+    end
+  end
+
   defp move_left(game_state = %GameState{current_state: :moving}, left) do
     left_input = left.count == 1 || (left.count >= 15 && rem(left.count, 6) == 0)
 
@@ -218,9 +252,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     end
   end
 
-  defp move_left(game_state, _) do
-    game_state
-  end
+  defp move_left(game_state, _), do: game_state
 
   def handle_event("key_down", keys, socket) do
     right =
