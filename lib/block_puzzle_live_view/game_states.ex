@@ -12,11 +12,6 @@ defmodule BlockPuzzleLiveView.GameStates do
   end
 
   def flash_block(game_state = %GameState{current_state: :flashing}) do
-    IO.puts("-------------
-
-
-  ")
-
     if game_state.current_state_remaining >= 0 do
       new_board_state = BoardState.place_block(game_state.board_state, game_state.block_state)
 
@@ -31,17 +26,6 @@ defmodule BlockPuzzleLiveView.GameStates do
   end
 
   def flash_block(game_state = %GameState{}), do: game_state
-
-  # def lock_block(game_state = %GameState{}) do
-  # new_board_state = BoardState.place_block(game_state.board_state, game_state.block_state)
-  #
-  # %{
-  # game_state
-  # | board_state: new_board_state,
-  # current_state: :row_darkening,
-  # current_state_remaining: 30
-  # }
-  # end
 
   def set_darkening_state(
         game_state = %GameState{current_state: :row_darkening, current_state_remaining: 0}
