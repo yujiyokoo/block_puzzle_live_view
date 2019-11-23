@@ -32,6 +32,12 @@ defmodule BlockPuzzleLiveView.BoardState do
     place_block_with_colour(board, block_state, :white)
   end
 
+  def lighten_block(board, block_state = %BlockState{}) do
+    place_block_with_colour(board, block_state, :lightgrey)
+  end
+
+  def lighten_block(board, _), do: board
+
   defp place_block_with_colour(board, block_state = %BlockState{}, colour) do
     start_row = if block_state.y < 0, do: 0, else: block_state.y
     block_row_nums = Enum.to_list(start_row..(block_state.y + 3))

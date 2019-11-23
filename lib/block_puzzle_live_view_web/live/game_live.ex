@@ -27,15 +27,25 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   end
 
   defp cell_colours(game_state = %GameState{current_state: :flashing}) do
-    with_block = BoardState.whiten_block(game_state.board_state, game_state.block_state)
+    IO.inspect(game_state.landing_position, label: "rendering with landing")
 
-    BoardState.cell_colours(with_block)
+    with_block_and_landing_position =
+      game_state.board_state
+      |> BoardState.lighten_block(game_state.landing_position)
+      |> BoardState.whiten_block(game_state.block_state)
+
+    BoardState.cell_colours(with_block_and_landing_position)
   end
 
   defp cell_colours(game_state = %GameState{}) do
-    with_block = BoardState.place_block(game_state.board_state, game_state.block_state)
+    IO.inspect(game_state.landing_position, label: "rendering with landing")
 
-    BoardState.cell_colours(with_block)
+    with_block_and_landing_position =
+      game_state.board_state
+      |> BoardState.lighten_block(game_state.landing_position)
+      |> BoardState.place_block(game_state.block_state)
+
+    BoardState.cell_colours(with_block_and_landing_position)
   end
 
   defp get_input(socket) do
@@ -113,6 +123,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       |> rotate_clockwise(z)
       |> rotate_counterclockwise(x)
       |> move_down()
+      |> set_landing_position()
       |> GameStates.flash_block()
       |> GameStates.set_darkening_state()
       |> GameStates.delete_full_rows()
@@ -208,6 +219,13 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       game_state
     end
   end
+
+  defp set_landing_position(game_state = %GameState{current_state: :moving}) do
+    %{block_state: landing_position} = hard_drop_position(game_state)
+    %{game_state | landing_position: landing_position}
+  end
+
+  defp set_landing_position(game_state = %GameState{}), do: game_state
 
   defp hard_drop(game_state = %GameState{current_state: :moving}, up) do
     up_input = up.count == 1 || (up.count >= 15 && rem(up.count, 6) == 0)
