@@ -22,3 +22,9 @@ import LiveSocket from "phoenix_live_view"
 let liveSocket = new LiveSocket("/live", Socket)
 liveSocket.connect()
 
+// stop arrow keys scrolling
+window.addEventListener("keydown", function(e) {
+	if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+		e.preventDefault();
+	}
+}, false);
