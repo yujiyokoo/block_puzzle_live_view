@@ -6,11 +6,11 @@ defmodule BlockPuzzleLiveView.BlockStates do
   end
 
   def clockwise_next(block_state) do
-    Map.put(block_state, :orientation, rem(block_state.orientation + 1, 4))
+    %{block_state | orientation: rem(block_state.orientation + 1, 4)}
   end
 
   def counterclockwise_next(block_state) do
-    Map.put(block_state, :orientation, rem(block_state.orientation + 3, 4))
+    %{block_state | orientation: rem(block_state.orientation + 3, 4)}
   end
 
   def colour(shape) do

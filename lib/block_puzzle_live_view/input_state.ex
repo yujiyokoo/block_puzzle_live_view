@@ -1,4 +1,4 @@
-defmodule InputState do
+defmodule BlockPuzzleLiveView.InputState do
   defstruct left: %{pressed: false, count: 0},
             right: %{pressed: false, count: 0},
             up: %{pressed: false, count: 0},

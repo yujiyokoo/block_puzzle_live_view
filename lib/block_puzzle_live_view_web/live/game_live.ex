@@ -1,7 +1,7 @@
 defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   use Phoenix.LiveView
   require Phoenix.View
-  alias BlockPuzzleLiveView.{BlockStates, BoardState, GameStates, GameState}
+  alias BlockPuzzleLiveView.{BlockStates, BoardState, GameStates, GameState, InputState}
 
   def render(assigns) do
     Phoenix.View.render(BlockPuzzleLiveViewWeb.PageView, "game.html", assigns)
@@ -121,7 +121,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       |> move_left(left)
       |> move_right(right)
       |> rotate_clockwise(z)
-      |> rotate_counterclockwise(x)
+      |> rotate_counter_cw(x)
       |> move_down()
       |> set_landing_position()
       |> GameStates.flash_block()
@@ -178,37 +178,25 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
 
   defp move_down(game_state = %GameState{}), do: game_state
 
-  defp rotate_clockwise(game_state, z) do
-    input = z.count == 1
-
-    if input && GameStates.can_rotate_clockwise?(game_state) do
-      %{
-        game_state
-        | block_state: %{
-            game_state.block_state
-            | orientation: rem(game_state.block_state.orientation + 1, 4)
-          }
-      }
+  defp rotate_clockwise(game_state, %{count: 1}) do
+    if GameStates.can_rotate_clockwise?(game_state) do
+      %{game_state | block_state: BlockStates.clockwise_next(game_state.block_state)}
     else
       game_state
     end
   end
 
-  defp rotate_counterclockwise(game_state, x) do
-    input = x.count == 1
+  defp rotate_clockwise(game_state, _), do: game_state
 
-    if input && GameStates.can_rotate_counterclockwise?(game_state) do
-      %{
-        game_state
-        | block_state: %{
-            game_state.block_state
-            | orientation: rem(game_state.block_state.orientation + 3, 4)
-          }
-      }
+  defp rotate_counter_cw(game_state, %{count: 1}) do
+    if GameStates.can_rotate_counterclockwise?(game_state) do
+      %{game_state | block_state: BlockStates.counterclockwise_next(game_state.block_state)}
     else
       game_state
     end
   end
+
+  defp rotate_counter_cw(game_state, _), do: game_state
 
   defp move_right(game_state, right) do
     right_input = right.count == 1 || (right.count >= 15 && rem(right.count, 6) == 0)
