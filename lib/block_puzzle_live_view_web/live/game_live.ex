@@ -118,9 +118,15 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     updated_game_state =
       socket.assigns.game_state
       |> hard_drop(up)
+      # move_left_with_floor_kick
+      # move_right_with_floor_kick
+      # skip if rotate-moved
       |> move_left(left)
+      # skip if rotate-moved
       |> move_right(right)
+      # skip if rotate-moved
       |> rotate_clockwise(z)
+      # skip if rotate-moved
       |> rotate_counter_cw(x)
       |> move_down()
       |> set_landing_position()
@@ -178,17 +184,39 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
 
   defp move_down(game_state = %GameState{}), do: game_state
 
-  defp rotate_clockwise(game_state, %{count: 1}) do
-    if GameStates.can_rotate_clockwise?(game_state) do
-      %{game_state | block_state: BlockStates.clockwise_next(game_state.block_state)}
-    else
-      game_state
+  # TODO: implement kicks
+  defp rotate_clockwise(game_state = %GameState{current_state: :moving}, %{count: 1}) do
+    cond do
+      shift = GameStates.rotate_clockwise_no_move?(game_state) ->
+        %{game_state | block_state: BlockStates.clockwise(game_state.block_state, shift)}
+
+      shift = GameStates.rotate_clockwise_with_left_kick?(game_state) ->
+        %{
+          game_state
+          | block_state: BlockStates.clockwise(game_state.block_state, shift)
+        }
+
+      shift = GameStates.rotate_clockwise_with_right_kick?(game_state) ->
+        %{
+          game_state
+          | block_state: BlockStates.clockwise(game_state.block_state, shift)
+        }
+
+      shift = GameStates.rotate_clockwise_with_floor_kick?(game_state) ->
+        %{
+          game_state
+          | block_state: BlockStates.clockwise(game_state.block_state, shift)
+        }
+
+      true ->
+        game_state
     end
   end
 
   defp rotate_clockwise(game_state, _), do: game_state
 
-  defp rotate_counter_cw(game_state, %{count: 1}) do
+  # TODO: implement kicks
+  defp rotate_counter_cw(game_state = %GameState{current_state: :moving}, %{count: 1}) do
     if GameStates.can_rotate_counterclockwise?(game_state) do
       %{game_state | block_state: BlockStates.counterclockwise_next(game_state.block_state)}
     else

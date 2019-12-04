@@ -6,7 +6,7 @@ defmodule BlockPuzzleLiveView.GameStates do
   def start_game do
     %GameState{
       board_state: BoardState.new_board(),
-      block_state: BlockStates.random_block(),
+      block_state: BlockStates.next_block(),
       current_state: :moving
     }
   end
@@ -51,8 +51,7 @@ defmodule BlockPuzzleLiveView.GameStates do
     %{
       game_state
       | board_state: BoardState.refill(without_full),
-        current_state: :getting_new_block,
-        current_state_remaining: 30
+        current_state: :getting_new_block
     }
   end
 
@@ -61,7 +60,7 @@ defmodule BlockPuzzleLiveView.GameStates do
   def get_new_block(game_state = %GameState{current_state: :getting_new_block}) do
     %{
       game_state
-      | block_state: BlockStates.random_block(),
+      | block_state: BlockStates.next_block(),
         current_state: :moving,
         current_state_remaining: -1
     }
@@ -105,12 +104,85 @@ defmodule BlockPuzzleLiveView.GameStates do
     !collide?(block_section, board_4x4)
   end
 
-  def can_rotate_clockwise?(game_state = %GameState{}) do
+  def rotate_clockwise_no_move?(game_state = %GameState{}) do
     board_4x4 = get_4x4_board(game_state, %{x: 0, y: 0})
 
     block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
 
-    !collide?(block_section, board_4x4)
+    if !collide?(block_section, board_4x4) do
+      %{x: 0, y: 0}
+    else
+      false
+    end
+  end
+
+  def rotate_clockwise_with_left_kick?(game_state = %GameState{}) do
+    board_4x4 = get_4x4_board(game_state, %{x: 1, y: 0})
+    block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
+
+    # I can shift 2 blocks to the side when rotating vertical to horizontal
+    if !collide?(block_section, board_4x4) do
+      %{x: 1, y: 0}
+    else
+      if game_state.block_state.shape == :I do
+        board_4x4 = get_4x4_board(game_state, %{x: 2, y: 0})
+        block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
+
+        if !collide?(block_section, board_4x4) do
+          %{x: 2, y: 0}
+        else
+          false
+        end
+      else
+        false
+      end
+    end
+  end
+
+  def rotate_clockwise_with_right_kick?(game_state = %GameState{}) do
+    board_4x4 = get_4x4_board(game_state, %{x: -1, y: 0})
+    block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
+
+    # I can shift 2 blocks to the side when rotating vertical to horizontal
+    if !collide?(block_section, board_4x4) do
+      %{x: -1, y: 0}
+    else
+      if game_state.block_state.shape == :I do
+        board_4x4 = get_4x4_board(game_state, %{x: -2, y: 0})
+        block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
+
+        if !collide?(block_section, board_4x4) do
+          %{x: -2, y: 0}
+        else
+          false
+        end
+      else
+        false
+      end
+    end
+  end
+
+  def rotate_clockwise_with_floor_kick?(game_state = %GameState{}) do
+    board_4x4 = get_4x4_board(game_state, %{x: 0, y: -1})
+    block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
+
+    # I can shift 2 blocks to the side when rotating vertical to horizontal
+    if !collide?(block_section, board_4x4) do
+      %{x: 0, y: -1}
+    else
+      if game_state.block_state.shape == :I do
+        board_4x4 = get_4x4_board(game_state, %{x: 0, y: -2})
+        block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
+
+        if !collide?(block_section, board_4x4) do
+          %{x: 0, y: -2}
+        else
+          false
+        end
+      else
+        false
+      end
+    end
   end
 
   def can_move_left?(game_state = %GameState{}) do

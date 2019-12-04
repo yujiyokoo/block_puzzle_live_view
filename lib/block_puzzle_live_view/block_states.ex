@@ -5,8 +5,18 @@ defmodule BlockPuzzleLiveView.BlockStates do
     Enum.at(all_4x4s[block_state.shape], block_state.orientation)
   end
 
+  # TODO: deprecate
   def clockwise_next(block_state) do
     %{block_state | orientation: rem(block_state.orientation + 1, 4)}
+  end
+
+  def clockwise(block_state = %BlockState{}, shift = %{}) do
+    %{
+      block_state
+      | orientation: rem(block_state.orientation + 1, 4),
+        x: block_state.x + shift.x,
+        y: block_state.y + shift.y
+    }
   end
 
   def counterclockwise_next(block_state) do
@@ -19,7 +29,16 @@ defmodule BlockPuzzleLiveView.BlockStates do
     ]
   end
 
-  def random_block do
+  def next_block(blk) do
+    %BlockState{
+      x: 3,
+      y: -1,
+      shape: blk,
+      orientation: 0
+    }
+  end
+
+  def next_block do
     %BlockState{
       x: 3,
       y: -1,
