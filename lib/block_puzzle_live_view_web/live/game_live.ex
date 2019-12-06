@@ -226,7 +226,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
 
   defp rotate_counter_cw(game_state, _), do: game_state
 
-  defp move_right(game_state, right) do
+  defp move_right(game_state = %GameState{current_state: :moving}, right) do
     right_input = right.count == 1 || (right.count >= 15 && rem(right.count, 6) == 0)
 
     if right_input && GameStates.can_move_right?(game_state) do
@@ -235,6 +235,8 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       game_state
     end
   end
+
+  defp move_right(game_state, _), do: game_state
 
   defp set_landing_position(game_state = %GameState{current_state: :moving}) do
     %{block_state: landing_position} = hard_drop_position(game_state)
