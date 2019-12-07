@@ -27,8 +27,6 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   end
 
   defp cell_colours(game_state = %GameState{current_state: :flashing}) do
-    IO.inspect(game_state.landing_position, label: "rendering with landing")
-
     with_block_and_landing_position =
       game_state.board_state
       |> BoardState.lighten_block(game_state.landing_position)
@@ -38,8 +36,6 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   end
 
   defp cell_colours(game_state = %GameState{}) do
-    IO.inspect(game_state.landing_position, label: "rendering with landing")
-
     with_block_and_landing_position =
       game_state.board_state
       |> BoardState.lighten_block(game_state.landing_position)
