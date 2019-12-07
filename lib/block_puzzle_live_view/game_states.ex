@@ -116,23 +116,22 @@ defmodule BlockPuzzleLiveView.GameStates do
     end
   end
 
-  def rotate_clockwise_with_left_kick?(game_state = %GameState{}) do
-    board_4x4 = get_4x4_board(game_state, %{x: 1, y: 0})
+  def rotate_with_kick?(game_state = %GameState{}, shift = %{}) do
+    board_4x4 = get_4x4_board(game_state, shift)
     block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
 
-    # I can shift 2 blocks to the side when rotating vertical to horizontal
-    if !collide?(block_section, board_4x4) do
-      %{x: 1, y: 0}
-    else
-      if game_state.block_state.shape == :I do
-        board_4x4 = get_4x4_board(game_state, %{x: 2, y: 0})
-        block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
+    !collide?(block_section, board_4x4)
+  end
 
-        if !collide?(block_section, board_4x4) do
-          %{x: 2, y: 0}
-        else
-          false
-        end
+  def rotate_clockwise_with_left_kick?(game_state = %GameState{}) do
+    shift_1_right = %{x: 1, y: 0}
+    shift_2_right = %{x: 2, y: 0}
+
+    if rotate_with_kick?(game_state, shift_1_right) do
+      shift_1_right
+    else
+      if game_state.block_state.shape == :I && rotate_with_kick?(game_state, shift_2_right) do
+        shift_2_right
       else
         false
       end
@@ -140,22 +139,14 @@ defmodule BlockPuzzleLiveView.GameStates do
   end
 
   def rotate_clockwise_with_right_kick?(game_state = %GameState{}) do
-    board_4x4 = get_4x4_board(game_state, %{x: -1, y: 0})
-    block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
+    shift_1_left = %{x: -1, y: 0}
+    shift_2_left = %{x: -2, y: 0}
 
-    # I can shift 2 blocks to the side when rotating vertical to horizontal
-    if !collide?(block_section, board_4x4) do
-      %{x: -1, y: 0}
+    if rotate_with_kick?(game_state, shift_1_left) do
+      shift_1_left
     else
-      if game_state.block_state.shape == :I do
-        board_4x4 = get_4x4_board(game_state, %{x: -2, y: 0})
-        block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
-
-        if !collide?(block_section, board_4x4) do
-          %{x: -2, y: 0}
-        else
-          false
-        end
+      if game_state.block_state.shape == :I && rotate_with_kick?(game_state, shift_2_left) do
+        shift_2_left
       else
         false
       end
@@ -163,22 +154,14 @@ defmodule BlockPuzzleLiveView.GameStates do
   end
 
   def rotate_clockwise_with_floor_kick?(game_state = %GameState{}) do
-    board_4x4 = get_4x4_board(game_state, %{x: 0, y: -1})
-    block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
+    shift_1_up = %{x: 0, y: -1}
+    shift_2_up = %{x: 0, y: -1}
 
-    # I can shift 2 blocks to the side when rotating vertical to horizontal
-    if !collide?(block_section, board_4x4) do
-      %{x: 0, y: -1}
+    if rotate_with_kick?(game_state, shift_1_up) do
+      shift_1_up
     else
-      if game_state.block_state.shape == :I do
-        board_4x4 = get_4x4_board(game_state, %{x: 0, y: -2})
-        block_section = BlockStates.as_4x4(BlockStates.clockwise_next(game_state.block_state))
-
-        if !collide?(block_section, board_4x4) do
-          %{x: 0, y: -2}
-        else
-          false
-        end
+      if game_state.block_state.shape == :I && rotate_with_kick?(game_state, shift_2_up) do
+        shift_2_up
       else
         false
       end
