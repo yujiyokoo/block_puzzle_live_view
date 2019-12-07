@@ -186,6 +186,12 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       shift = GameStates.rotate_clockwise_no_move?(game_state) ->
         %{game_state | block_state: BlockStates.clockwise(game_state.block_state, shift)}
 
+      shift = GameStates.rotate_clockwise_with_floor_kick?(game_state) ->
+        %{
+          game_state
+          | block_state: BlockStates.clockwise(game_state.block_state, shift)
+        }
+
       shift = GameStates.rotate_clockwise_with_left_kick?(game_state) ->
         %{
           game_state
@@ -193,12 +199,6 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
         }
 
       shift = GameStates.rotate_clockwise_with_right_kick?(game_state) ->
-        %{
-          game_state
-          | block_state: BlockStates.clockwise(game_state.block_state, shift)
-        }
-
-      shift = GameStates.rotate_clockwise_with_floor_kick?(game_state) ->
         %{
           game_state
           | block_state: BlockStates.clockwise(game_state.block_state, shift)
