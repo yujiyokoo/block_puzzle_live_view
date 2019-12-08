@@ -5,23 +5,19 @@ defmodule BlockPuzzleLiveView.BlockStates do
     Enum.at(all_4x4s[block_state.shape], block_state.orientation)
   end
 
-  # TODO: deprecate
-  def clockwise_next(block_state) do
-    %{block_state | orientation: rem(block_state.orientation + 1, 4)}
-  end
+  def rotate(block_state = %BlockState{}, direction, shift_param = %{}) do
+    shift = Map.merge(%{x: 0, y: 0}, shift_param)
 
-  def clockwise(block_state = %BlockState{}, shift = %{}) do
     %{
       block_state
-      | orientation: rem(block_state.orientation + 1, 4),
+      | orientation: next_orientation(block_state.orientation, direction),
         x: block_state.x + shift.x,
         y: block_state.y + shift.y
     }
   end
 
-  def counterclockwise_next(block_state) do
-    %{block_state | orientation: rem(block_state.orientation + 3, 4)}
-  end
+  defp next_orientation(orientation, :clockwise), do: rem(orientation + 1, 4)
+  defp next_orientation(orientation, :counter_cw), do: rem(orientation + 3, 4)
 
   def colour(shape) do
     %{I: :cyan, O: :yellow, L: :orange, J: :blue, S: :green, Z: :red, T: :purple, NULL: :none}[

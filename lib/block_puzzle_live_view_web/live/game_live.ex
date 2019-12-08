@@ -121,9 +121,9 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       # skip if rotate-moved
       |> move_right(right)
       # skip if rotate-moved
-      |> rotate_clockwise(z)
+      |> rotate(:clockwise, z)
       # skip if rotate-moved
-      |> rotate_counter_cw(x)
+      |> rotate(:counter_cw, x)
       |> move_down()
       |> set_landing_position()
       |> GameStates.flash_block()
@@ -180,28 +180,27 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
 
   defp move_down(game_state = %GameState{}), do: game_state
 
-  # TODO: implement kicks
-  defp rotate_clockwise(game_state = %GameState{current_state: :moving}, %{count: 1}) do
+  defp rotate(game_state = %GameState{current_state: :moving}, direction, %{count: 1}) do
     cond do
-      shift = GameStates.rotate_clockwise_no_move?(game_state) ->
-        %{game_state | block_state: BlockStates.clockwise(game_state.block_state, shift)}
+      shift = GameStates.rotate_no_move?(game_state, direction) ->
+        %{game_state | block_state: BlockStates.rotate(game_state.block_state, direction, shift)}
 
-      shift = GameStates.rotate_clockwise_with_floor_kick?(game_state) ->
+      shift = GameStates.rotate_with_floor_kick?(game_state, direction) ->
         %{
           game_state
-          | block_state: BlockStates.clockwise(game_state.block_state, shift)
+          | block_state: BlockStates.rotate(game_state.block_state, direction, shift)
         }
 
-      shift = GameStates.rotate_clockwise_with_left_kick?(game_state) ->
+      shift = GameStates.rotate_with_left_kick?(game_state, direction) ->
         %{
           game_state
-          | block_state: BlockStates.clockwise(game_state.block_state, shift)
+          | block_state: BlockStates.rotate(game_state.block_state, direction, shift)
         }
 
-      shift = GameStates.rotate_clockwise_with_right_kick?(game_state) ->
+      shift = GameStates.rotate_with_right_kick?(game_state, direction) ->
         %{
           game_state
-          | block_state: BlockStates.clockwise(game_state.block_state, shift)
+          | block_state: BlockStates.rotate(game_state.block_state, direction, shift)
         }
 
       true ->
@@ -209,18 +208,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     end
   end
 
-  defp rotate_clockwise(game_state, _), do: game_state
-
-  # TODO: implement kicks
-  defp rotate_counter_cw(game_state = %GameState{current_state: :moving}, %{count: 1}) do
-    if GameStates.can_rotate_counterclockwise?(game_state) do
-      %{game_state | block_state: BlockStates.counterclockwise_next(game_state.block_state)}
-    else
-      game_state
-    end
-  end
-
-  defp rotate_counter_cw(game_state, _), do: game_state
+  defp rotate(game_state, _, _), do: game_state
 
   defp move_right(game_state = %GameState{current_state: :moving}, right) do
     right_input = right.count == 1 || (right.count >= 15 && rem(right.count, 6) == 0)
