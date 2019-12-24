@@ -8,8 +8,6 @@ defmodule BlockPuzzleLiveView.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      # Start the Ecto repository
-      BlockPuzzleLiveView.Repo,
       # Start the endpoint when the application starts
       BlockPuzzleLiveViewWeb.Endpoint
       # Starts a worker by calling: BlockPuzzleLiveView.Worker.start_link(arg)

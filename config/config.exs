@@ -7,9 +7,6 @@
 # General application configuration
 use Mix.Config
 
-config :block_puzzle_live_view,
-  ecto_repos: [BlockPuzzleLiveView.Repo]
-
 # Configures the endpoint
 config :block_puzzle_live_view, BlockPuzzleLiveViewWeb.Endpoint,
   url: [host: "localhost"],
