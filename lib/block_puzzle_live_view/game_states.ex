@@ -42,6 +42,29 @@ defmodule BlockPuzzleLiveView.GameStates do
 
   def set_darkening_state(game_state = %GameState{}), do: game_state
 
+  def increment_score(game_state = %GameState{current_state: :row_deleting}) do
+    full_row_count =
+      Enum.count(
+        game_state.board_state,
+        fn row -> Enum.all?(row, fn elem -> !is_nil(elem) end) end
+      )
+
+    score = case full_row_count do
+      1 -> 1
+      2 -> 3
+      3 -> 5
+      4 -> 8
+      _ -> 0
+    end
+
+    %{
+      game_state
+      | score: game_state.score + score
+    }
+  end
+
+  def increment_score(game_state = %GameState{}), do: game_state
+
   def delete_full_rows(game_state = %GameState{current_state: :row_deleting}) do
     without_full =
       Enum.reject(

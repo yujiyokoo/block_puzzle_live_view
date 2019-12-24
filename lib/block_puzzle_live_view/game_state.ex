@@ -3,6 +3,7 @@ defmodule BlockPuzzleLiveView.GameState do
             block_state: nil,
             upcoming_block: nil,
             frame: 0,
+            score: 0,
             current_state: :stopped,
             current_state_remaining: -1,
             landing_position: nil

@@ -31,7 +31,8 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
        input_state: input_state,
        game_state: game_state,
        cell_colours: cell_colours(game_state),
-       next_block_pane: next_block_pane(game_state.upcoming_block)
+       next_block_pane: next_block_pane(game_state.upcoming_block),
+       score: game_state.score * 100
      )}
   end
 
@@ -141,6 +142,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       |> set_landing_position()
       |> GameStates.flash_block()
       |> GameStates.set_darkening_state()
+      |> GameStates.increment_score()
       |> GameStates.delete_full_rows()
       |> GameStates.get_new_block()
       |> GameStates.check_game_over()
@@ -153,7 +155,8 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
        cell_colours:
          cell_colours(updated_game_state)
          |> BoardState.darken_full_rows(updated_game_state.current_state),
-       next_block_pane: next_block_pane(updated_game_state.upcoming_block)
+       next_block_pane: next_block_pane(updated_game_state.upcoming_block),
+       score: updated_game_state.score * 100
      )}
   end
 
