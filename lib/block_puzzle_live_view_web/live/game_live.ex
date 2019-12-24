@@ -137,7 +137,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       |> move_right(right)
       |> rotate(:clockwise, z)
       |> rotate(:counter_cw, x)
-      |> move_down()
+      |> move_down(down)
       |> set_landing_position()
       |> GameStates.flash_block()
       |> GameStates.set_darkening_state()
@@ -172,9 +172,11 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     Map.put(game_state, :frames_since_landing, frames_since_landing)
   end
 
-  defp move_down(game_state = %GameState{current_state: :moving}) do
+  defp move_down(game_state = %GameState{current_state: :moving}, down) do
+    down_input = down.count == 1 || (down.count >= 15 && rem(down.count, 6) == 0)
+
     if GameStates.can_drop?(game_state) do
-      if rem(game_state.frame, 10) == 0 do
+      if down_input || rem(game_state.frame, 10) == 0 do
         %{
           game_state
           | block_state: %{game_state.block_state | y: game_state.block_state.y + 1},
@@ -192,7 +194,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     end
   end
 
-  defp move_down(game_state = %GameState{}), do: game_state
+  defp move_down(game_state = %GameState{}, _), do: game_state
 
   defp rotate(game_state = %GameState{current_state: :moving}, direction, %{count: 1}) do
     cond do
