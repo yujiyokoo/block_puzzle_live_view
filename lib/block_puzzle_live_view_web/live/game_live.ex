@@ -114,15 +114,9 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     updated_game_state =
       socket.assigns.game_state
       |> hard_drop(up)
-      # move_left_with_floor_kick
-      # move_right_with_floor_kick
-      # skip if rotate-moved
       |> move_left(left)
-      # skip if rotate-moved
       |> move_right(right)
-      # skip if rotate-moved
       |> rotate(:clockwise, z)
-      # skip if rotate-moved
       |> rotate(:counter_cw, x)
       |> move_down()
       |> set_landing_position()
