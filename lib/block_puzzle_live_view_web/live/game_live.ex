@@ -186,7 +186,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     else
       case game_state.current_state_remaining do
         -1 -> %{game_state | current_state_remaining: 60}
-        0 -> %{game_state | current_state: :flashing, current_state_remaining: 30}
+        0 -> %{game_state | current_state: :flashing, current_state_remaining: 10}
         _ -> %{game_state | current_state_remaining: game_state.current_state_remaining - 1}
       end
     end
@@ -256,7 +256,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
             | y: block_state.y
           },
           current_state: :flashing,
-          current_state_remaining: 30
+          current_state_remaining: 10
       }
     else
       game_state
