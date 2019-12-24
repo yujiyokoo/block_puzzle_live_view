@@ -1,7 +1,15 @@
 defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   use Phoenix.LiveView
   require Phoenix.View
-  alias BlockPuzzleLiveView.{BlockStates, BoardState, GameStates, GameState, InputState}
+
+  alias BlockPuzzleLiveView.{
+    BlockState,
+    BlockStates,
+    BoardState,
+    GameStates,
+    GameState,
+    InputState
+  }
 
   def render(assigns) do
     Phoenix.View.render(BlockPuzzleLiveViewWeb.PageView, "game.html", assigns)
@@ -22,8 +30,19 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
      assign(socket,
        input_state: input_state,
        game_state: game_state,
-       cell_colours: cell_colours(game_state)
+       cell_colours: cell_colours(game_state),
+       next_block_pane: next_block_pane(game_state.upcoming_block)
      )}
+  end
+
+  defp next_block_pane(block) do
+    block
+    |> BlockStates.as_4x4()
+    |> Enum.map(fn row ->
+      Enum.map(row, fn cell ->
+        if cell == 1, do: BlockStates.colour(block.shape)
+      end)
+    end)
   end
 
   defp cell_colours(game_state = %GameState{current_state: :flashing}) do
@@ -133,7 +152,8 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
        game_state: updated_game_state,
        cell_colours:
          cell_colours(updated_game_state)
-         |> BoardState.darken_full_rows(updated_game_state.current_state)
+         |> BoardState.darken_full_rows(updated_game_state.current_state),
+       next_block_pane: next_block_pane(updated_game_state.upcoming_block)
      )}
   end
 

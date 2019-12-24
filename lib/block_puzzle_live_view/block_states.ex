@@ -1,6 +1,15 @@
 defmodule BlockPuzzleLiveView.BlockStates do
   alias BlockPuzzleLiveView.BlockState
 
+  def as_4x4(nil) do
+    [
+      [nil, nil, nil, nil],
+      [nil, nil, nil, nil],
+      [nil, nil, nil, nil],
+      [nil, nil, nil, nil]
+    ]
+  end
+
   def as_4x4(block_state) do
     Enum.at(all_4x4s[block_state.shape], block_state.orientation)
   end

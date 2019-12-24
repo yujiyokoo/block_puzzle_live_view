@@ -7,6 +7,7 @@ defmodule BlockPuzzleLiveView.GameStates do
     %GameState{
       board_state: BoardState.new_board(),
       block_state: BlockStates.next_block(),
+      upcoming_block: BlockStates.next_block(),
       current_state: :moving
     }
   end
@@ -60,7 +61,8 @@ defmodule BlockPuzzleLiveView.GameStates do
   def get_new_block(game_state = %GameState{current_state: :getting_new_block}) do
     %{
       game_state
-      | block_state: BlockStates.next_block(),
+      | block_state: game_state.upcoming_block,
+        upcoming_block: BlockStates.next_block(),
         current_state: :moving,
         current_state_remaining: -1
     }
