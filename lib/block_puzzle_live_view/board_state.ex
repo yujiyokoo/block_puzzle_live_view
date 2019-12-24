@@ -19,7 +19,9 @@ defmodule BlockPuzzleLiveView.BoardState do
   def extend_board(board_state) do
     extended_board =
       ([empty_row()] ++ board_state ++ [solid_floor(), solid_floor()])
-      |> Enum.map(fn row -> [:block, :block, :block, :block] ++ row ++ [:block, :block] end)
+      |> Enum.map(fn row ->
+        [:block, :block, :block, :block] ++ row ++ [:block, :block, :block]
+      end)
 
     {extended_board, %{x: 4, y: 1}}
   end
