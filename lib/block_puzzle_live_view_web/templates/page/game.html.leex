@@ -1,36 +1,49 @@
-<table class="next-pane">
-  <tbody>
-    <%= for row <- @next_block_pane do %>
-    <tr>
-      <%= for cell <- row do %>
-        <td class="<%= cell %>"></td>
-      <% end %>
-    </tr>
-    <% end %>
-  </tbody>
-</table>
-
 Score: <%= @score %>
 Level: <%= @level %>
 
-<table class="gameboard">
-  <tbody>
-    <%= for row <- @cell_colours do %>
-    <tr>
-      <%= for cell <- row do %>
-        <td class="<%= cell %>"></td>
+<div class="twocolumns">
+<div class="column">
+  <table class="gameboard">
+    <tbody>
+      <%= for row <- @cell_colours do %>
+      <tr>
+        <%= for cell <- row do %>
+          <td class="<%= cell %>"></td>
+        <% end %>
+      </tr>
       <% end %>
-    </tr>
-    <% end %>
-  </tbody>
-</table>
+    </tbody>
+  </table>
+</div>
 
-<div phx-keydown="key_down" phx-keyup="key_up" phx-target="window">
-  Left pressed: <%= @input_state.left.pressed %>, count: <%= @input_state.left.count %><br/>
-  Right pressed: <%= @input_state.right.pressed %>, count: <%= @input_state.right.count %><br/>
-  Down pressed: <%= @input_state.down.pressed %>, count: <%= @input_state.down.count %><br/>
-  Up pressed: <%= @input_state.up.pressed %>, count: <%= @input_state.up.count %><br/>
-  X pressed: <%= @input_state.x.pressed %>, count: <%= @input_state.x.count %><br/>
-  Z pressed: <%= @input_state.z.pressed %>, count: <%= @input_state.z.count %><br/>
-</>
+<div class="column">
+  <table class="next-pane">
+    <tbody>
+      <%= for row <- @next_block_pane do %>
+      <tr>
+        <%= for cell <- row do %>
+          <td class="<%= cell %>"></td>
+        <% end %>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
 
+  <div class="key-states" phx-keydown="key_down" phx-keyup="key_up" phx-target="window">
+    <h2>Key states</h2>
+    <ul>
+      <li>Left pressed: <%= @input_state.left.pressed %>, count: <%= @input_state.left.count %>
+      <li> Right pressed: <%= @input_state.right.pressed %>, count: <%= @input_state.right.count %>
+      <li> Down pressed: <%= @input_state.down.pressed %>, count: <%= @input_state.down.count %>
+      <li> Up pressed: <%= @input_state.up.pressed %>, count: <%= @input_state.up.count %>
+      <li> X pressed: <%= @input_state.x.pressed %>, count: <%= @input_state.x.count %>
+      <li> Z pressed: <%= @input_state.z.pressed %>, count: <%= @input_state.z.count %>
+    </ul>
+    <h2>Controls</h2>
+    <ul>
+      <li>Space: Start game
+      <li>Cursor key left/right/down: move
+      <li>Cursor key up: hard drop
+      <li>x, y: rotate
+    </ul>
+</div>
