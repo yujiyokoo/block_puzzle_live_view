@@ -178,7 +178,7 @@ defmodule BlockPuzzleLiveView.GameStates do
 
   def rotate_with_floor_kick?(game_state = %GameState{}, direction) do
     shift_1_up = %{x: 0, y: -1}
-    shift_2_up = %{x: 0, y: -1}
+    shift_2_up = %{x: 0, y: -2}
 
     if rotate_with_kick?(game_state, shift_1_up, direction) do
       shift_1_up
