@@ -32,7 +32,8 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
        game_state: game_state,
        cell_colours: cell_colours(game_state),
        next_block_pane: next_block_pane(game_state.upcoming_block),
-       score: game_state.score * 100
+       score: game_state.score * 100,
+       level: GameStates.level_of(game_state)
      )}
   end
 
@@ -156,7 +157,8 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
          cell_colours(updated_game_state)
          |> BoardState.darken_full_rows(updated_game_state.current_state),
        next_block_pane: next_block_pane(updated_game_state.upcoming_block),
-       score: updated_game_state.score * 100
+       score: updated_game_state.score * 100,
+       level: GameStates.level_of(updated_game_state)
      )}
   end
 
@@ -175,11 +177,16 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     Map.put(game_state, :frames_since_landing, frames_since_landing)
   end
 
+  defp level_wait(game_state = %GameState{}) do
+    trunc(30 / GameStates.level_of(game_state))
+  end
+
   defp move_down(game_state = %GameState{current_state: :moving}, down) do
     down_input = down.count == 1 || (down.count >= 15 && rem(down.count, 6) == 0)
 
     if GameStates.can_drop?(game_state) do
-      if down_input || rem(game_state.frame, 10) == 0 do
+      wait = level_wait(game_state)
+      if down_input || wait == 0 || rem(game_state.frame, wait) == 0 do
         %{
           game_state
           | block_state: %{game_state.block_state | y: game_state.block_state.y + 1},

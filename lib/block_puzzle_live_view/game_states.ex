@@ -12,6 +12,8 @@ defmodule BlockPuzzleLiveView.GameStates do
     }
   end
 
+  def level_of(game_state = %GameState{}), do: div(game_state.total_deleted_lines, 4) + 1
+
   def flash_block(game_state = %GameState{current_state: :flashing}) do
     if game_state.current_state_remaining >= 0 do
       new_board_state = BoardState.place_block(game_state.board_state, game_state.block_state)
@@ -59,7 +61,8 @@ defmodule BlockPuzzleLiveView.GameStates do
 
     %{
       game_state
-      | score: game_state.score + score
+      | score: game_state.score + score,
+        total_deleted_lines: game_state.total_deleted_lines + full_row_count
     }
   end
 
