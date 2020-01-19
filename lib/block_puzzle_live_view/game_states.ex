@@ -12,7 +12,14 @@ defmodule BlockPuzzleLiveView.GameStates do
     }
   end
 
-  def level_of(game_state = %GameState{}), do: div(game_state.total_deleted_lines, 4) + 1
+  def level_of(game_state = %GameState{}) do
+    lvl = div(game_state.total_deleted_lines, 4) + 1
+    if lvl > 30 do
+      30
+    else
+      lvl
+    end
+  end
 
   def flash_block(game_state = %GameState{current_state: :flashing}) do
     if game_state.current_state_remaining >= 0 do
