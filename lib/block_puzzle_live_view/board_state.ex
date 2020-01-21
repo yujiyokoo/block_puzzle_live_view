@@ -34,11 +34,11 @@ defmodule BlockPuzzleLiveView.BoardState do
     place_block_with_colour(board, block_state, :white)
   end
 
-  def lighten_block(board, block_state = %BlockState{}) do
+  def lighten_block(board, block_state = %BlockState{}, :moving) do
     place_block_with_colour(board, block_state, :lightgrey)
   end
 
-  def lighten_block(board, _), do: board
+  def lighten_block(board, _, _), do: board
 
   defp place_block_with_colour(board, block_state = %BlockState{}, colour) do
     start_row = if block_state.y < 0, do: 0, else: block_state.y

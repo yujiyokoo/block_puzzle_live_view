@@ -1,7 +1,11 @@
 defmodule BlockPuzzleLiveView.GameStates do
   alias BlockPuzzleLiveView.{GameState, BlockStates, BoardState}
+  @max_level 30
+  @fps 15
 
-  @stages [:stopped, :moving, :flashing, :row_darkening, :row_deleting, :landed]
+  @stages [:stopped, :moving, :flashing, :row_darkening, :row_deleting, :landed, :checking_game_over]
+
+  def fps, do: @fps
 
   def start_game do
     %GameState{
@@ -14,8 +18,8 @@ defmodule BlockPuzzleLiveView.GameStates do
 
   def level_of(game_state = %GameState{}) do
     lvl = div(game_state.total_deleted_lines, 4) + 1
-    if lvl > 30 do
-      30
+    if lvl > @max_level do
+      @max_level
     else
       lvl
     end
@@ -31,7 +35,7 @@ defmodule BlockPuzzleLiveView.GameStates do
           current_state_remaining: game_state.current_state_remaining - 1
       }
     else
-      %{game_state | current_state: :row_darkening, current_state_remaining: 30}
+      %{game_state | current_state: :row_darkening, current_state_remaining: div(@fps, 3)}
     end
   end
 
@@ -96,7 +100,8 @@ defmodule BlockPuzzleLiveView.GameStates do
       game_state
       | block_state: game_state.upcoming_block,
         upcoming_block: BlockStates.next_block(),
-        current_state: :moving,
+        current_state: :checking_game_over,
+        landing_position: nil,
         current_state_remaining: -1
     }
   end
@@ -117,7 +122,7 @@ defmodule BlockPuzzleLiveView.GameStates do
     board_4x4 = Enum.map(rows, fn row -> Enum.slice(row, adjusted_x..(adjusted_x + 3)) end)
   end
 
-  def check_game_over(game_state = %GameState{current_state: :moving}) do
+  def check_game_over(game_state = %GameState{current_state: :checking_game_over}) do
     board_4x4 = get_4x4_board(game_state, %{x: 0, y: 0})
 
     game_over = collide?(block_4x4(game_state.block_state), board_4x4)
@@ -126,6 +131,8 @@ defmodule BlockPuzzleLiveView.GameStates do
       Map.put(game_state, :current_state, :stopped)
     else
       game_state
+      |> Map.put(:current_state, :moving)
+      |> Map.put(:current_state_remaining, -1)
     end
   end
 

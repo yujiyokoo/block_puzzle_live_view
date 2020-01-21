@@ -11,12 +11,16 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     InputState
   }
 
+  @score_multiplier 100
+  @key_repeat_interval 1 # this is "no wait". Maybe remove the calculation
+  @key_repeat_initial div(GameStates.fps, 3)
+
   def render(assigns) do
     Phoenix.View.render(BlockPuzzleLiveViewWeb.PageView, "game.html", assigns)
   end
 
   def mount(%{user_id: user_id}, socket) do
-    if connected?(socket), do: :timer.send_interval(16, self(), :update)
+    if connected?(socket), do: :timer.send_interval(div(1000, GameStates.fps), self(), :update)
 
     input_state = %InputState{}
 
@@ -32,7 +36,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
        game_state: game_state,
        cell_colours: cell_colours(game_state),
        next_block_pane: next_block_pane(game_state.upcoming_block),
-       score: game_state.score * 100,
+       score: game_state.score * @score_multiplier,
        level: GameStates.level_of(game_state)
      )}
   end
@@ -50,7 +54,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   defp cell_colours(game_state = %GameState{current_state: :flashing}) do
     with_block_and_landing_position =
       game_state.board_state
-      |> BoardState.lighten_block(game_state.landing_position)
+      |> BoardState.lighten_block(game_state.landing_position, game_state.current_state)
       |> BoardState.whiten_block(game_state.block_state)
 
     BoardState.cell_colours(with_block_and_landing_position)
@@ -59,7 +63,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   defp cell_colours(game_state = %GameState{}) do
     with_block_and_landing_position =
       game_state.board_state
-      |> BoardState.lighten_block(game_state.landing_position)
+      |> BoardState.lighten_block(game_state.landing_position, game_state.current_state)
       |> BoardState.place_block(game_state.block_state)
 
     BoardState.cell_colours(with_block_and_landing_position)
@@ -157,13 +161,13 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
          cell_colours(updated_game_state)
          |> BoardState.darken_full_rows(updated_game_state.current_state),
        next_block_pane: next_block_pane(updated_game_state.upcoming_block),
-       score: updated_game_state.score * 100,
+       score: updated_game_state.score * @score_multiplier,
        level: GameStates.level_of(updated_game_state)
      )}
   end
 
   defp advance_frame(game_state = %GameState{}) do
-    %{game_state | frame: rem(game_state.frame + 1, 60)}
+    %{game_state | frame: rem(game_state.frame + 1, GameStates.fps)}
   end
 
   defp update_frames_since_landing(game_state) do
@@ -177,16 +181,16 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
     Map.put(game_state, :frames_since_landing, frames_since_landing)
   end
 
-  defp level_wait(game_state = %GameState{}) do
-    trunc(30 / GameStates.level_of(game_state))
+  defp wait_frames_for_level(game_state = %GameState{}) do
+    trunc(GameStates.fps / GameStates.level_of(game_state))
   end
 
   defp move_down(game_state = %GameState{current_state: :moving}, down) do
-    down_input = down.count == 1 || (down.count >= 15 && rem(down.count, 6) == 0)
+    down_input = down.count == 1 || (down.count >= @key_repeat_initial && rem(down.count, @key_repeat_interval) == 0)
 
     if GameStates.can_drop?(game_state) do
-      wait = level_wait(game_state)
-      if down_input || wait == 0 || rem(game_state.frame, wait) == 0 do
+      wait_frames = wait_frames_for_level(game_state)
+      if down_input || wait_frames == 0 || rem(game_state.frame, wait_frames) == 0 do
         %{
           game_state
           | block_state: %{game_state.block_state | y: game_state.block_state.y + 1},
@@ -197,8 +201,8 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
       end
     else
       case game_state.current_state_remaining do
-        -1 -> %{game_state | current_state_remaining: 60}
-        0 -> %{game_state | current_state: :flashing, current_state_remaining: 10}
+        -1 -> %{game_state | current_state_remaining: GameStates.fps}
+        0 -> %{game_state | current_state: :flashing, current_state_remaining: div(GameStates.fps, 6)}
         _ -> %{game_state | current_state_remaining: game_state.current_state_remaining - 1}
       end
     end
@@ -237,7 +241,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   defp rotate(game_state, _, _), do: game_state
 
   defp move_right(game_state = %GameState{current_state: :moving}, right) do
-    right_input = right.count == 1 || (right.count >= 15 && rem(right.count, 6) == 0)
+    right_input = right.count == 1 || (right.count >= @key_repeat_initial && rem(right.count, @key_repeat_interval) == 0)
 
     if right_input && GameStates.can_move_right?(game_state) do
       %{game_state | block_state: %{game_state.block_state | x: game_state.block_state.x + 1}}
@@ -256,7 +260,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   defp set_landing_position(game_state = %GameState{}), do: game_state
 
   defp hard_drop(game_state = %GameState{current_state: :moving}, up) do
-    up_input = up.count == 1 || (up.count >= 15 && rem(up.count, 6) == 0)
+    up_input = up.count == 1 || (up.count >= @key_repeat_initial && rem(up.count, @key_repeat_interval) == 0)
 
     if up_input do
       %{block_state: block_state} = hard_drop_position(game_state)
@@ -268,7 +272,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
             | y: block_state.y
           },
           current_state: :flashing,
-          current_state_remaining: 10
+          current_state_remaining: div(GameStates.fps, 6)
       }
     else
       game_state
@@ -289,7 +293,7 @@ defmodule BlockPuzzleLiveViewWeb.Live.GameLive do
   end
 
   defp move_left(game_state = %GameState{current_state: :moving}, left) do
-    left_input = left.count == 1 || (left.count >= 15 && rem(left.count, 6) == 0)
+    left_input = left.count == 1 || (left.count >= @key_repeat_initial && rem(left.count, @key_repeat_interval) == 0)
 
     if left_input && GameStates.can_move_left?(game_state) do
       %{game_state | block_state: %{game_state.block_state | x: game_state.block_state.x - 1}}
